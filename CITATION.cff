@@ -1,11 +1,11 @@
 cff-version: 1.2.0
 message: >-
-  Public author and proceedings metadata are pending. Do not publish or cite
-  this placeholder record as the final paper citation.
+  The paper title, venue, year, and DOI are confirmed. The ordered five-author
+  TAPS list is still required; do not publish or cite this incomplete record.
 title: "FocalGS: Adaptive Focal 3D Gaussian Splatting for Continuous Zoom Rendering"
 type: software
 authors:
-  - name: "FocalGS authors (public list pending)"
+  - name: "RELEASE BLOCKED: insert the ordered five-author TAPS list"
 repository-code: "https://github.com/lzy021205/FocalGS"
 abstract: >-
   FocalGS reconstructs a unified focal-adaptive 3D Gaussian representation
@@ -16,3 +16,11 @@ keywords:
   - novel view synthesis
   - continuous zoom
   - computational photography
+references:
+  - type: conference-paper
+    title: "FocalGS: Adaptive Focal 3D Gaussian Splatting for Continuous Zoom Rendering"
+    authors:
+      - name: "RELEASE BLOCKED: insert the ordered five-author TAPS list"
+    collection-title: "SIGGRAPH Asia 2026 Conference Papers"
+    year: 2026
+    doi: "10.1145/3829340.3842186"

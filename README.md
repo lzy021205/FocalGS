@@ -8,13 +8,16 @@ Gaussian attributes and physical defocus supervision.
 Resources:
 
 - Code: https://github.com/lzy021205/FocalGS
-- Project page: Coming soon
-- Paper: Coming soon
-- Dataset: Coming soon
-- Pretrained models: Coming soon
+- Project page: included in `project_page/`; public URL will be activated after approval
+- Paper: *SIGGRAPH Asia 2026 Conference Papers*, DOI
+  [10.1145/3829340.3842186](https://doi.org/10.1145/3829340.3842186)
+- Dataset: offline release candidates documented in `DATASET.md` and
+  `REAL_DATASET.md`; public URLs will be inserted after approval
 
-Public author/citation metadata is still pending. The checked-in
-`CITATION.cff` is marked incomplete and must be finalized before publication.
+The ordered five-author list was not present in the inspected TAPS/PDF archive.
+`CITATION.cff` therefore remains explicitly blocked rather than guessing
+names. It must be finalized from the authoritative TAPS author list before the
+repository is published.
 
 ## Overview
 
@@ -159,7 +162,8 @@ aperture, and focus metadata are required for faithful FocalGS behavior.
 
 See `DATASET.md` for scene statistics, archive integrity checks, and the exact
 synthetic split. See `docs/IMPLEMENTATION_NOTES.md` for paper/code differences
-and the intentional Ship resolution mismatch.
+and the intentional Ship resolution mismatch. See
+`docs/SYNTHETIC_DATA_PROVENANCE.md` for the scene-by-scene rights record.
 
 ## Training
 
@@ -292,6 +296,8 @@ paper's stated 15-viewpoint x 5-focal protocol. Later clean Plant/Bear datasets
 and strict 24--85 mm splits are separate post-paper benchmarks; no equivalent
 clean Toy dataset was found. `docs/REAL_DATA_PROVENANCE.md` records the versions,
 split counts, camera limitations, privacy review, and recommended release labels.
+`REAL_DATASET.md` gives the portable archive layout, checksums, and verification
+commands.
 
 ## Reproducibility Notes
 
@@ -305,6 +311,18 @@ paper/code differences:
 
 See `docs/IMPLEMENTATION_NOTES.md` for the exact behavior.
 
+## Citation
+
+The confirmed publication metadata is:
+
+- Title: **FocalGS: Adaptive Focal 3D Gaussian Splatting for Continuous Zoom Rendering**
+- Venue: **SIGGRAPH Asia 2026 Conference Papers**
+- DOI: **10.1145/3829340.3842186**
+
+The online publication date has not been confirmed and is intentionally
+omitted. The final BibTeX and `CITATION.cff` author fields must be populated
+from the ordered five-author TAPS record before publication.
+
 ## Acknowledgements
 
 This project builds on 3D Gaussian Splatting, Scaffold-GS style anchor-based
@@ -317,4 +335,4 @@ See `LICENSE` and `THIRD_PARTY.md`. The repository inherits the
 Gaussian-Splatting research-only, non-commercial terms; it is source-available
 for research and evaluation and is not licensed for unrestricted commercial
 use. Dataset assets have separate redistribution requirements described in
-`DATASET.md` and `docs/RELEASE_CHECKLIST.md`.
+`DATASET.md`, `REAL_DATASET.md`, and `docs/RELEASE_CHECKLIST.md`.

@@ -1,0 +1,32 @@
+{
+  "format": "FocalGS publication manifest v1",
+  "prepared": "2026-10-13",
+  "publication_status": "offline; public release prohibited pending approval",
+  "components": [
+    {
+      "id": "code",
+      "artifact": "release/github-integration-20261013",
+      "classification": "technically ready; patent and license approval required"
+    },
+    {
+      "id": "synthetic-data",
+      "artifacts": 7,
+      "bytes": 2615388160,
+      "classification": "technically ready; per-scene redistribution authorization required"
+    },
+    {
+      "id": "real-paper-experiment",
+      "artifact": "focalgs_real_paper_experiment_candidate.tar.gz",
+      "bytes": 139512358,
+      "sha256": "f739ce473f1d167c715daa1b64232f0905f089f5936028d4b21ac3abca7933fa",
+      "classification": "technically ready; protocol disclosure, capture rights, privacy, and patent approval required"
+    },
+    {
+      "id": "real-postpaper-strict-24-85",
+      "artifact": "focalgs_real_postpaper_strict_24_85.tar.gz",
+      "bytes": 84299583,
+      "sha256": "1d12603d2616625373379ea7755bf446a48f3f3a6c72b602b0fe66cd15a53b88",
+      "classification": "technically ready; optional post-paper benchmark with independent approval"
+    }
+  ]
+}

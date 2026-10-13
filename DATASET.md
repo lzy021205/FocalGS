@@ -115,4 +115,5 @@ particular, Tanabata, Cozyroom, Pool, and Factory appear to derive from scene
 assets also used by Deblur-NeRF, while the exact source and license chain for
 all seven rendered scenes has not been established from the local archive.
 No ownership or redistribution grant is asserted here. See
-`docs/RELEASE_CHECKLIST.md` before publishing any archive.
+`docs/SYNTHETIC_DATA_PROVENANCE.md` and `docs/RELEASE_CHECKLIST.md` before
+publishing any archive.

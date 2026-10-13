@@ -15,6 +15,9 @@ lifted and every blocking item is signed off.
   densification threshold, and data-protocol differences.
 - Seven-scene synthetic staging tree with only JSON-referenced images, three
   camera JSONs, COLMAP binary sparse models, file lists, and SHA256 manifests.
+- Separate portable real-data archives for the checkpoint-matched Toy/Plant/Bear
+  experiment lineage and the optional post-paper Plant/Bear strict benchmark.
+- Reusable real-data staging and archive/download verification scripts.
 - Read-only GitHub history audit and a non-force integration procedure that
   preserves public commit `0ad544d258b936bbdd67911d65130648db56d6df`.
 - Project-page structure and media references. Quantitative Results and
@@ -29,12 +32,14 @@ lifted and every blocking item is signed off.
 - Project-page paper figures and comparison crops until the authors confirm
   conference/paper figure reuse terms.
 
-Tanabata, Cozyroom, Pool, and Factory appear to use scene assets also associated
-with Deblur-NeRF, but the local archive does not establish a complete source
-asset and license chain. Building, Livingroom, and Ship also lack a locally
-verified source/license record. No public data upload is allowed until a human
-records each asset source, creator, license, required attribution, modification
-permission, and redistribution permission.
+Tanabata, Cozyroom, Pool, and Factory are custom rerenders of named Deblur-NeRF
+scenes, but neither Deblur-NeRF's MIT code license nor its dataset page supplies
+an asset-specific license chain. Livingroom strongly matches the CC0 BlendSwap
+asset *Bachelor's quarters* by Rendars, but the exact source `.blend` or hash is
+absent and needs author attestation. Building and Ship remain unidentified. See
+`docs/SYNTHETIC_DATA_PROVENANCE.md`. No public data upload is allowed until a
+human records each exact asset source, creator, license, required attribution,
+modification permission, and derivative-image redistribution permission.
 
 ## Files that require an explicit paper/data difference note
 
@@ -68,19 +73,21 @@ permission, and redistribution permission.
 ## Blocking decisions before publication
 
 1. Patent counsel/author approval to disclose code, data, paper, and page.
-2. Final public author list, affiliations, paper URL/DOI, year/venue metadata,
-   and the preferred BibTeX citation. `CITATION.cff` is deliberately marked
-   incomplete until these are supplied.
+2. Ordered five-author TAPS list and preferred BibTeX author spelling. The
+   title, SIGGRAPH Asia 2026 Conference Papers venue, year, and DOI
+   `10.1145/3829340.3842186` are recorded; no online date is asserted.
 3. Written redistribution clearance for every synthetic scene asset and for
    generated derivatives.
 4. Real-data policy: whether to publish the recoverable paper-experiment
    candidates, the post-paper strict benchmark, or both as clearly separated
    downloads.
-5. Full privacy/rights review for real images and removal of raw camera serial,
-   timestamps, and any unwanted source-filename metadata.
-6. Upstream revision identification for vendored code where the copied source
-   lacks Git metadata, followed by a final third-party license review.
-7. Final archive URLs and checksums inserted into README, DATASET.md, and the
+5. Capture/privacy review for real images. The portable candidates already
+   exclude raw CR3, embedded metadata, serials, timestamps, and source-filename
+   metadata.
+6. Final third-party license review using the recovered revisions and content
+   fingerprints in `THIRD_PARTY.md`; the modified rasterizer's exact parent
+   commit remains unknown and must not be invented.
+7. Final archive URLs inserted into README, DATASET.md, REAL_DATASET.md, and the
    project page.
 
 ## Final technical gate

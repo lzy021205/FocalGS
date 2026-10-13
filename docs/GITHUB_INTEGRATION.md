@@ -4,52 +4,40 @@ Read-only audit date: 2026-10-13
 
 Official repository: `https://github.com/lzy021205/FocalGS`
 
-The public `main` branch currently contains one commit:
+The public `main` branch was rechecked read-only on 2026-10-13 and contains one
+commit:
 
 ```text
 0ad544d258b936bbdd67911d65130648db56d6df  Initial commit
 ```
 
-That commit adds a two-line README. The local release repository has an
-independent root commit and no configured remote. A direct push from local
-`main` would therefore be non-fast-forward and must not be used.
+That commit adds a two-line README. The local development `main` has an
+independent root, so it must never be pushed directly. A separate local branch,
+`release/github-integration-20261013`, was created from the public commit and
+contains the reviewed release tree as normal descendant commits. No remote
+write occurred.
 
 ## Safe offline preparation
 
-After the release files are approved locally:
+Keep release-only commits synchronized onto the integration branch with normal
+local cherry-picks, then inspect the resulting tree. Immediately before the
+approved publication window:
 
 ```bash
 git fetch https://github.com/lzy021205/FocalGS.git \
     main:refs/remotes/github/main
 
-git worktree add /tmp/FocalGS-github-integration github/main
-```
-
-Copy the approved local release tree into that worktree while excluding `.git`,
-`release_staging`, internal audit material, private data, checkpoints, and
-unapproved media. Replace the public two-line README with the reviewed release
-README, then commit on a local branch:
-
-```bash
-git -C /tmp/FocalGS-github-integration switch -c release/offline-candidate
-git -C /tmp/FocalGS-github-integration add --all
-git -C /tmp/FocalGS-github-integration commit
-```
-
-This creates a normal descendant of the existing public commit. Before any
-future publication, fetch again and verify ancestry:
-
-```bash
-git fetch https://github.com/lzy021205/FocalGS.git \
-    main:refs/remotes/github/main
 git merge-base --is-ancestor \
-    refs/remotes/github/main release/offline-candidate
+    refs/remotes/github/main release/github-integration-20261013
+git diff --check \
+    refs/remotes/github/main..release/github-integration-20261013
 ```
 
-If the check succeeds, pushing the reviewed candidate to `main` will be a
-fast-forward update. If the public branch changed, merge or rebase those public
-changes locally and review the result. Do not use `--force`, delete the remote
-branch, create a replacement repository, or rewrite the public initial commit.
+If ancestry succeeds, pushing that branch to `main` will be a fast-forward
+update. If public `main` changed, merge or rebase those public changes into the
+integration branch locally and review again. Do not use `--force`, delete the
+remote branch, create a replacement repository, or rewrite the public initial
+commit.
 
 No remote was added, no remote branch was changed, and no push was performed
 during offline release preparation.

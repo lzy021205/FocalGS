@@ -57,6 +57,11 @@ extracted from the paper PDF, so it does not provide an independent filename or
 checkpoint-level identity check. This version is therefore the strongest
 candidate, not cryptographic proof of the exact figure source.
 
+The later capture archive contains 90 CR3 originals arranged as 15 repeated
+six-focal sequences. The paper candidate successfully registers and references
+76 of those images; its 71/5 split reflects registration coverage rather than a
+complete rectangular focal grid.
+
 ### Bear
 
 - Historical data directory: `data/bear_newest`
@@ -75,6 +80,10 @@ This lineage is preferable to `bear_800_standard`: the latter patches failed
 long-focal test registrations by borrowing a 24 mm camera and subsequently
 labels some physical 85/105 mm images near 24.45 mm. It is not a safe paper
 release source.
+
+The later capture archive contains 96 CR3 originals arranged as 16 repeated
+six-focal sequences. The paper candidate successfully registers and references
+68 images, again producing a non-rectangular focal grid.
 
 ## Later clean datasets
 
@@ -128,6 +137,22 @@ and focus metadata; those fields require a deliberate public-metadata decision.
 
 The real scenes may also reveal the capture environment. Before release, the
 authors must confirm ownership/consent for the depicted objects and locations.
+
+## Portable candidates
+
+Two separate portable archives were prepared without modifying the research
+data:
+
+| Archive | Bytes | SHA256 | Validation |
+| --- | ---: | --- | --- |
+| `focalgs_real_paper_experiment_candidate.tar.gz` | 139,512,358 | `f739ce473f1d167c715daa1b64232f0905f089f5936028d4b21ac3abca7933fa` | 264 members; six split JSONs; Toy/Plant/Bear load with the exact reader |
+| `focalgs_real_postpaper_strict_24_85.tar.gz` | 84,299,583 | `1d12603d2616625373379ea7755bf446a48f3f3a6c72b602b0fe66cd15a53b88` | 163 members; four split JSONs; Plant/Bear load with the exact reader |
+
+The candidates include JSON-referenced PNGs, train/test JSONs, and the COLMAP
+binary sparse triplet. They contain no symbolic links, raw CR3 files, embedded
+image metadata, databases, pickle files, caches, or unrelated intermediates.
+The strict JSON was sanitized to remove original CR3 names, serial-related raw
+metadata, timestamps, exposure/ISO strings, lens strings, and EXIF focus bounds.
 
 ## Recommended release treatment
 
