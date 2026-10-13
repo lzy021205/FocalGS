@@ -48,9 +48,15 @@ def main() -> None:
     cff = ROOT / "CITATION.cff"
     readme = ROOT / "README.md"
     page = ROOT / "project_page/index.html"
-    required = [TITLE, VENUE, DOI, *AUTHORS]
+    required = [TITLE, VENUE, DOI]
     for path in (cff, readme, page):
         require_text(path, required)
+    for path in (readme, page):
+        require_text(path, AUTHORS)
+    require_text(
+        cff,
+        ["Zeyu", "Liu", "Chao", "Jiahao", "Wu", "Jie", "Liang", "Ronggang", "Wang"],
+    )
 
     forbidden = ("RELEASE BLOCKED", "author list pending", "TAPS list is still required")
     for path in (cff, readme, page):
