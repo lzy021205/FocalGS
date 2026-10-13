@@ -1,0 +1,39 @@
+{
+  "version": "FocalGS-Real-Experimental-Archive-v1",
+  "archive": "focalgs_real_paper_experiment_candidate.tar.gz",
+  "bytes": 139512358,
+  "sha256": "f739ce473f1d167c715daa1b64232f0905f089f5936028d4b21ac3abca7933fa",
+  "total_images": 234,
+  "scenes": {
+    "toy": {
+      "source_images": 96,
+      "capture_sequence_evidence": "16 apparent sequences x 6 images; inferred",
+      "registered_included": 90,
+      "train": 72,
+      "test": 18,
+      "resolution": [800, 533],
+      "train_focal_counts_mm": {"24": 12, "35": 12, "50": 12, "70": 12, "85": 12, "105": 12},
+      "test_focal_counts_mm": {"24": 3, "35": 3, "50": 3, "70": 3, "85": 3, "105": 3}
+    },
+    "plant": {
+      "raw_captures": 90,
+      "capture_sequence_evidence": "15 sequences x 6 focal settings",
+      "registered_included": 76,
+      "train": 71,
+      "test": 5,
+      "resolution": [800, 533],
+      "train_focal_counts_mm": {"24": 14, "35": 14, "50": 14, "70": 14, "85": 11, "87": 1, "105": 3},
+      "test_focal_counts_mm": {"24": 1, "35": 1, "50": 1, "70": 1, "85": 1}
+    },
+    "bear": {
+      "raw_captures": 96,
+      "capture_sequence_evidence": "16 sequences x 6 focal settings",
+      "registered_included": 68,
+      "train": 64,
+      "test": 4,
+      "resolution": [800, 533],
+      "train_focal_counts_mm": {"24": 15, "35": 15, "50": 15, "70": 12, "85": 5, "105": 2},
+      "test_focal_counts_mm": {"24": 1, "35": 1, "50": 1, "70": 1}
+    }
+  }
+}

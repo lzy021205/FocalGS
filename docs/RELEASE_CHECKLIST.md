@@ -73,21 +73,18 @@ modification permission, and derivative-image redistribution permission.
 ## Blocking decisions before publication
 
 1. Patent counsel/author approval to disclose code, data, paper, and page.
-2. Ordered five-author TAPS list and preferred BibTeX author spelling. The
-   title, SIGGRAPH Asia 2026 Conference Papers venue, year, and DOI
-   `10.1145/3829340.3842186` are recorded; no online date is asserted.
-3. Written redistribution clearance for every synthetic scene asset and for
+2. Written redistribution clearance for every synthetic scene asset and for
    generated derivatives.
-4. Real-data policy: whether to publish the recoverable paper-experiment
+3. Real-data policy: whether to publish the recoverable paper-experiment
    candidates, the post-paper strict benchmark, or both as clearly separated
    downloads.
-5. Capture/privacy review for real images. The portable candidates already
+4. Capture/privacy review for real images. The portable candidates already
    exclude raw CR3, embedded metadata, serials, timestamps, and source-filename
    metadata.
-6. Final third-party license review using the recovered revisions and content
+5. Final third-party license review using the recovered revisions and content
    fingerprints in `THIRD_PARTY.md`; the modified rasterizer's exact parent
    commit remains unknown and must not be invented.
-7. Final archive URLs inserted into README, DATASET.md, REAL_DATASET.md, and the
+6. Final archive URLs inserted into README, DATASET.md, REAL_DATASET.md, and the
    project page.
 
 ## Final technical gate

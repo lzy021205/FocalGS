@@ -14,10 +14,7 @@ Resources:
 - Dataset: offline release candidates documented in `DATASET.md` and
   `REAL_DATASET.md`; public URLs will be inserted after approval
 
-The ordered five-author list was not present in the inspected TAPS/PDF archive.
-`CITATION.cff` therefore remains explicitly blocked rather than guessing
-names. It must be finalized from the authoritative TAPS author list before the
-repository is published.
+**Zeyu Liu, Chao Wang, Jiahao Wu, Jie Liang, Ronggang Wang**
 
 ## Overview
 
@@ -297,7 +294,9 @@ and strict 24--85 mm splits are separate post-paper benchmarks; no equivalent
 clean Toy dataset was found. `docs/REAL_DATA_PROVENANCE.md` records the versions,
 split counts, camera limitations, privacy review, and recommended release labels.
 `REAL_DATASET.md` gives the portable archive layout, checksums, and verification
-commands.
+commands. The two real-data downloads are versioned separately as
+**Experimental Archive** and **Post-paper Clean Benchmark** under
+`release/real/`.
 
 ## Reproducibility Notes
 
@@ -316,12 +315,23 @@ See `docs/IMPLEMENTATION_NOTES.md` for the exact behavior.
 The confirmed publication metadata is:
 
 - Title: **FocalGS: Adaptive Focal 3D Gaussian Splatting for Continuous Zoom Rendering**
+- Authors: **Zeyu Liu, Chao Wang, Jiahao Wu, Jie Liang, Ronggang Wang**
 - Venue: **SIGGRAPH Asia 2026 Conference Papers**
 - DOI: **10.1145/3829340.3842186**
 
 The online publication date has not been confirmed and is intentionally
-omitted. The final BibTeX and `CITATION.cff` author fields must be populated
-from the ordered five-author TAPS record before publication.
+omitted.
+
+```bibtex
+@inproceedings{liu2026focalgs,
+  title     = {FocalGS: Adaptive Focal 3D Gaussian Splatting for Continuous Zoom Rendering},
+  author    = {Liu, Zeyu and Wang, Chao and Wu, Jiahao and Liang, Jie and Wang, Ronggang},
+  booktitle = {SIGGRAPH Asia 2026 Conference Papers},
+  year      = {2026},
+  doi       = {10.1145/3829340.3842186},
+  publisher = {Association for Computing Machinery}
+}
+```
 
 ## Acknowledgements
 

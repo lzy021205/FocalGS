@@ -16,14 +16,22 @@
     },
     {
       "id": "real-paper-experiment",
+      "label": "Experimental Archive",
+      "version": "FocalGS-Real-Experimental-Archive-v1",
       "artifact": "focalgs_real_paper_experiment_candidate.tar.gz",
+      "companion_directory": "release/real/experimental_archive",
+      "images": 234,
       "bytes": 139512358,
       "sha256": "f739ce473f1d167c715daa1b64232f0905f089f5936028d4b21ac3abca7933fa",
       "classification": "technically ready; protocol disclosure, capture rights, privacy, and patent approval required"
     },
     {
       "id": "real-postpaper-strict-24-85",
+      "label": "Post-paper Clean Benchmark",
+      "version": "FocalGS-Real-PostPaper-Clean-24-85-v1",
       "artifact": "focalgs_real_postpaper_strict_24_85.tar.gz",
+      "companion_directory": "release/real/postpaper_clean_benchmark",
+      "images": 142,
       "bytes": 84299583,
       "sha256": "1d12603d2616625373379ea7755bf446a48f3f3a6c72b602b0fe66cd15a53b88",
       "classification": "technically ready; optional post-paper benchmark with independent approval"

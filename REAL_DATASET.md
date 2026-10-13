@@ -3,7 +3,9 @@
 This document describes the two offline real-data release candidates prepared
 on 2026-10-13. They are separate datasets and must remain separate downloads.
 
-## Paper-experiment archival candidate
+## Experimental Archive
+
+Version: `FocalGS-Real-Experimental-Archive-v1`
 
 Archive: `focalgs_real_paper_experiment_candidate.tar.gz`
 
@@ -24,7 +26,12 @@ lengths, and two held-out viewpoints. See
 `docs/REAL_DATA_PROVENANCE.md` and
 `docs/REAL_PROTOCOL_DISCLOSURE_DRAFT.md` before publishing results.
 
-## Optional post-paper benchmark
+The distribution companion files, including machine-readable statistics, are
+under `release/real/experimental_archive/`.
+
+## Post-paper Clean Benchmark
+
+Version: `FocalGS-Real-PostPaper-Clean-24-85-v1`
 
 Archive: `focalgs_real_postpaper_strict_24_85.tar.gz`
 
@@ -39,6 +46,9 @@ SHA256:
 This benchmark was derived after the paper experiments from later clean data.
 It must not replace or be described as the paper-experiment dataset. There is
 no corresponding strict Toy dataset.
+
+The distribution companion files, including machine-readable statistics, are
+under `release/real/postpaper_clean_benchmark/`.
 
 ## Layout and use
 

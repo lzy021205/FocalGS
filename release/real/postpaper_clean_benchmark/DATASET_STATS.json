@@ -1,0 +1,29 @@
+{
+  "version": "FocalGS-Real-PostPaper-Clean-24-85-v1",
+  "archive": "focalgs_real_postpaper_strict_24_85.tar.gz",
+  "bytes": 84299583,
+  "sha256": "1d12603d2616625373379ea7755bf446a48f3f3a6c72b602b0fe66cd15a53b88",
+  "total_images": 142,
+  "scenes": {
+    "plant": {
+      "raw_captures": 90,
+      "clean_registered": 79,
+      "strict_included": 72,
+      "train": 58,
+      "test": 14,
+      "resolution": [800, 533],
+      "train_focal_counts_mm": {"24": 12, "35": 12, "50": 12, "70": 12, "85": 10},
+      "test_focal_counts_mm": {"24": 3, "35": 3, "50": 3, "70": 3, "85": 2}
+    },
+    "bear": {
+      "raw_captures": 96,
+      "clean_registered": 74,
+      "strict_included": 70,
+      "train": 57,
+      "test": 13,
+      "resolution": [800, 533],
+      "train_focal_counts_mm": {"24": 13, "35": 13, "50": 13, "70": 10, "85": 8},
+      "test_focal_counts_mm": {"24": 3, "35": 3, "50": 3, "70": 3, "85": 1}
+    }
+  }
+}
