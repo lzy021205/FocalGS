@@ -19,9 +19,9 @@ must not be described as an exact realization of the paper's stated protocol.
 
 ### Toy
 
-- Data: `/data5/lzy/deblurrDyGS/data/toy_final_resize`
+- Historical data directory: `data/toy_final_resize`
 - Direct final-run script: `run_toy_final.sh`
-- Model output: `/data5/lzy/deblurrDyGS/output/toy_final_resize_run`
+- Historical model output: `output/toy_final_resize_run`
 - Checkpoints: iterations 15000 and 30000
 - Run time: 2026-04-29 to 2026-04-30, before the paper PDF
 - Split: 72 train / 18 test, 800 x 533
@@ -38,8 +38,8 @@ dimensions, while the point cloud still comes from that reconstruction.
 
 ### Plant
 
-- Data: `/data5/lzy/deblurrDyGS/data/plant_new`
-- Model output: `/data5/lzy/deblurrDyGS/output/plant_new_experiment`
+- Historical data directory: `data/plant_new`
+- Historical model output: `output/plant_new_experiment`
 - Checkpoints: iterations 15000 and 30000
 - Results file: 30k render/evaluation output exists
 - Run time: 2026-05-11, before the paper PDF
@@ -59,8 +59,8 @@ candidate, not cryptographic proof of the exact figure source.
 
 ### Bear
 
-- Data: `/data5/lzy/deblurrDyGS/data/bear_newest`
-- Model output: `/data5/lzy/deblurrDyGS/output/bear_newest_experiment`
+- Historical data directory: `data/bear_newest`
+- Historical model output: `output/bear_newest_experiment`
 - Checkpoints: iterations 15000 and 30000
 - Paired no-defocus experiment and results also exist
 - Run time: 2026-05-11, before the paper PDF
