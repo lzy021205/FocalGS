@@ -1,0 +1,64 @@
+# Datasets and experiment outputs
+data/
+output/
+output*/
+outputs/
+logs/
+runs/
+wandb/
+
+# Checkpoints, rendered outputs, and generated media
+*.pth
+*.pt
+*.ckpt
+*.ply
+events.out.tfevents*
+*.log
+
+# Python and native build products
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+build/
+dist/
+*.egg-info/
+*.so
+*.o
+*.a
+*.obj
+
+# Local caches and environments
+.cache/
+cache/
+tmp/
+temp/
+*.tmp
+.conda/
+.venv/
+venv/
+env/
+condaenv.*.requirements.txt
+
+# Local agent/session metadata and internal release notes
+.codex/
+.agents/
+internal_docs/
+release_staging/
+
+# Project-page scratch output
+project_page_tmp/
+project-page-tmp/
+
+# Internal review media and unselected project-page source assets
+fast_forward/
+project_page/PROJECT_PAGE_*.md
+project_page/assets/comparisons/*.png
+project_page/assets/dof/
+project_page/assets/hero/focalgs_figure1_overview_from_pdf.png
+project_page/assets/quantitative/
+project_page/assets/real/postpaper_*
+project_page/assets/videos/*.mp4
+project_page/assets/videos/frames/
+project_page/assets/videos/thumbnails/
+project_page/assets/zoom/

@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FocalGS: Adaptive Focal 3D Gaussian Splatting for Continuous Zoom Rendering</title>
+    <meta
+      name="description"
+      content="FocalGS learns a unified focal-adaptive 3D Gaussian representation for continuous viewpoint and zoom synthesis from multi-view, multi-focal observations."
+    >
+    <link rel="stylesheet" href="static/css/style.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <p class="venue">SIGGRAPH Asia 2026</p>
+        <h1>FocalGS: Adaptive Focal 3D Gaussian Splatting for Continuous Zoom Rendering</h1>
+        <p class="authors">Public author list pending</p>
+        <nav class="link-row" aria-label="Project links">
+          <span class="link-button disabled" aria-disabled="true">Paper Coming Soon</span>
+          <a class="link-button" href="https://github.com/lzy021205/FocalGS">Code</a>
+          <span class="link-button disabled" aria-disabled="true">Dataset Coming Soon</span>
+          <a class="link-button" href="#continuous-zoom">Video</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero-section">
+        <div class="container">
+          <button class="image-open hero-figure" data-full="assets/hero/focalgs_figure1_overview_from_pdf_clean_crop.png" data-caption="FocalGS overview: multi-view, multi-focal observations support continuous viewpoint and zoom synthesis.">
+            <img
+              src="assets/hero/focalgs_figure1_overview_from_pdf_clean_crop.png"
+              alt="FocalGS overview with multi-view multi-focal inputs and continuous viewpoint and zoom synthesis outputs"
+            >
+          </button>
+          <p class="tldr">
+            FocalGS learns a unified focal-adaptive 3D Gaussian representation from multi-view, multi-focal observations, enabling continuous viewpoint and zoom synthesis.
+          </p>
+        </div>
+      </section>
+
+      <section id="abstract" class="section">
+        <div class="container narrow">
+          <h2>Abstract</h2>
+          <p>
+            Images captured with different focal lengths exhibit coupled changes in field of view, perspective, and defocus blur. FocalGS reconstructs a unified 3D representation from multi-view images captured under varying focal lengths, supporting both free-viewpoint synthesis and smooth continuous zoom control.
+          </p>
+          <p>
+            The method builds on 3D Gaussian Splatting with a focal-aware representation that separates focal-invariant structure from scale-dependent residual variation. A physical thin-lens defocus model is incorporated during rendering, helping prevent defocus blur from being absorbed into scene geometry and improving recovery of sharp details.
+          </p>
+        </div>
+      </section>
+
+      <section id="continuous-zoom" class="section">
+        <div class="container">
+          <div class="section-heading">
+            <h2>Continuous Zoom Rendering</h2>
+            <p>FocalGS synthesizes focal changes from a single trained representation.</p>
+          </div>
+          <div class="video-grid three zoom-grid">
+            <figure>
+              <video autoplay muted loop playsinline preload="metadata" poster="assets/videos/web/building_zoom_poster.jpg">
+                <source src="assets/videos/web/building_zoom.mp4" type="video/mp4">
+              </video>
+              <figcaption>Building</figcaption>
+            </figure>
+            <figure>
+              <video autoplay muted loop playsinline preload="metadata" poster="assets/videos/web/pool_zoom_poster.jpg">
+                <source src="assets/videos/web/pool_zoom.mp4" type="video/mp4">
+              </video>
+              <figcaption>Pool</figcaption>
+            </figure>
+            <figure>
+              <video autoplay muted loop playsinline preload="metadata" poster="assets/videos/web/tanabata_zoom_poster.jpg">
+                <source src="assets/videos/web/tanabata_zoom.mp4" type="video/mp4">
+              </video>
+              <figcaption>Tanabata</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section id="trajectory" class="section trajectory-section">
+        <div class="container">
+          <div class="section-heading">
+            <h2>Camera &amp; Focal Trajectory</h2>
+            <p>FocalGS supports joint navigation through spatial viewpoints and focal settings.</p>
+          </div>
+          <figure class="trajectory-media">
+            <video autoplay muted loop playsinline preload="metadata" poster="assets/videos/web/trajectory_view_focal_poster.jpg">
+              <source src="assets/videos/web/trajectory_view_focal.mp4" type="video/mp4">
+            </video>
+          </figure>
+        </div>
+      </section>
+
+      <section id="method" class="section alt">
+        <div class="container">
+          <div class="section-heading">
+            <h2>Method</h2>
+            <p>A focal-adaptive Gaussian representation for zoom-aware rendering.</p>
+          </div>
+          <button class="image-open figure-frame" data-full="assets/method/focalgs_method_pdf-000.png" data-caption="FocalGS method overview.">
+            <img
+              src="assets/method/focalgs_method_pdf-000.png"
+              alt="Overview of the FocalGS method with focal-conditioned residual features, adaptive fusion, Gaussian decoders, and depth-of-field simulation"
+              loading="lazy"
+            >
+          </button>
+          <div class="method-points">
+            <p>FocalGS keeps a static intrinsic anchor feature and predicts a focal-conditioned residual feature using a multi-resolution hash field.</p>
+            <p>A complementary adaptive gate fuses the static and focal-dependent features before Gaussian attribute decoding.</p>
+            <p>Parallel Gaussian decoders predict offsets, opacity, color, scaling, and rotation for neural Gaussians anchored in 3D.</p>
+            <p>A thin-lens Circle of Confusion model supports physical defocus supervision and controllable depth-of-field rendering.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="qualitative" class="section">
+        <div class="container">
+          <div class="section-heading">
+            <h2>Qualitative Comparisons</h2>
+            <p>Paper-result comparisons against Gaussian rendering baselines.</p>
+          </div>
+          <div class="comparison-component" data-focal-comparison>
+            <div class="focal-tabs" role="tablist" aria-label="Focal setting">
+              <button class="focal-tab" type="button" role="tab" aria-selected="false" data-focal-target="short">Short Focal</button>
+              <button class="focal-tab active" type="button" role="tab" aria-selected="true" data-focal-target="medium">Medium Focal</button>
+              <button class="focal-tab" type="button" role="tab" aria-selected="false" data-focal-target="long">Long Focal</button>
+            </div>
+
+            <div class="comparison-panel" data-focal-panel="short" hidden>
+              <div class="comparison-grid">
+                <figure class="method-card">
+                  <button class="image-open comparison-image" data-full="assets/comparisons/web/pool/short_ground_truth.jpg" data-caption="Pool, short focal, Ground Truth.">
+                    <img src="assets/comparisons/web/pool/short_ground_truth.jpg" alt="Pool short focal Ground Truth" loading="lazy">
+                  </button>
+                  <figcaption>Ground Truth</figcaption>
+                </figure>
+                <figure class="method-card ours">
+                  <button class="image-open comparison-image" data-full="assets/comparisons/web/pool/short_ours.jpg" data-caption="Pool, short focal, Ours.">
+                    <img src="assets/comparisons/web/pool/short_ours.jpg" alt="Pool short focal Ours" loading="lazy">
+                  </button>
+                  <figcaption>Ours</figcaption>
+                </figure>
+                <figure class="method-card">
+                  <button class="image-open comparison-image" data-full="assets/comparisons/web/pool/short_mip_splatting.jpg" data-caption="Pool, short focal, Mip-Splatting.">
+                    <img src="assets/comparisons/web/pool/short_mip_splatting.jpg" alt="Pool short focal Mip-Splatting" loading="lazy">
+                  </button>
+                  <figcaption>Mip-Splatting</figcaption>
+                </figure>
+                <figure class="method-card">
+                  <button class="image-open comparison-image" data-full="assets/comparisons/web/pool/short_msgs.jpg" data-caption="Pool, short focal, MSGS.">
+                    <img src="assets/comparisons/web/pool/short_msgs.jpg" alt="Pool short focal MSGS" loading="lazy">
+                  </button>
+                  <figcaption>MSGS</figcaption>
+                </figure>
+                <figure class="method-card">
+                  <button class="image-open comparison-image" data-full="assets/comparisons/web/pool/short_zoomgs.jpg" data-caption="Pool, short focal, ZoomGS.">
+                    <img src="assets/comparisons/web/pool/short_zoomgs.jpg" alt="Pool short focal ZoomGS" loading="lazy">
+                  </button>
+                  <figcaption>ZoomGS</figcaption>
+                </figure>
+                <figure class="method-card">
+                  <button class="image-open comparison-image" data-full="assets/comparisons/web/pool/short_dofgs.jpg" data-caption="Pool, short focal, DoFGS.">
+                    <img src="assets/comparisons/web/pool/short_dofgs.jpg" alt="Pool short focal DoFGS" loading="lazy">
+                  </button>
+                  <figcaption>DoFGS</figcaption>
+                </figure>
+              </div>
+            </div>
+
+            <div class="comparison-panel active" data-focal-panel="medium">
+              <div class="comparison-grid">
+                <figure class="method-card">
+                  <button class="image-open comparison-image" data-full="assets/comparisons/web/pool/medium_ground_truth.jpg" data-caption="Pool, medium focal, Ground Truth.">
+                    <img src="assets/comparisons/web/pool/medium_ground_truth.jpg" alt="Pool medium focal Ground Truth" loading="lazy">
+                  </button>
+                  <figcaption>Ground Truth</figcaption>
+                </figure>
+                <figure class="method-card ours">
+                  <button class="image-open comparison-image" data-full="assets/comparisons/web/pool/medium_ours.jpg" data-caption="Pool, medium focal, Ours.">
+                    <img src="assets/comparisons/web/pool/medium_ours.jpg" alt="Pool medium focal Ours" loading="lazy">
+                  </button>
+                  <figcaption>Ours</figcaption>
+                </figure>
+                <figure class="method-card">
+                  <button class="image-open comparison-image" data-full="assets/comparisons/web/pool/medium_mip_splatting.jpg" data-caption="Pool, medium focal, Mip-Splatting.">
+                    <img src="assets/comparisons/web/pool/medium_mip_splatting.jpg" alt="Pool medium focal Mip-Splatting" loading="lazy">
+                  </button>
+                  <figcaption>Mip-Splatting</figcaption>
+                </figure>
+                <figure class="method-card">
+                  <button class="image-open comparison-image" data-full="assets/comparisons/web/pool/medium_msgs.jpg" data-caption="Pool, medium focal, MSGS.">
+                    <img src="assets/comparisons/web/pool/medium_msgs.jpg" alt="Pool medium focal MSGS" loading="lazy">
+                  </button>
+                  <figcaption>MSGS</figcaption>
+                </figure>
+                <figure class="method-card">
+                  <button class="image-open comparison-image" data-full="assets/comparisons/web/pool/medium_zoomgs.jpg" data-caption="Pool, medium focal, ZoomGS.">
+                    <img src="assets/comparisons/web/pool/medium_zoomgs.jpg" alt="Pool medium focal ZoomGS" loading="lazy">
+                  </button>
+                  <figcaption>ZoomGS</figcaption>
+                </figure>
+                <figure class="method-card">
+                  <button class="image-open comparison-image" data-full="assets/comparisons/web/pool/medium_dofgs.jpg" data-caption="Pool, medium focal, DoFGS.">
+                    <img src="assets/comparisons/web/pool/medium_dofgs.jpg" alt="Pool medium focal DoFGS" loading="lazy">
+                  </button>
+                  <figcaption>DoFGS</figcaption>
+                </figure>
+              </div>
+            </div>
+
+            <div class="comparison-panel" data-focal-panel="long" hidden>
+              <div class="comparison-grid">
+                <figure class="method-card">
+                  <button class="image-open comparison-image" data-full="assets/comparisons/web/pool/long_ground_truth.jpg" data-caption="Pool, long focal, Ground Truth.">
+                    <img src="assets/comparisons/web/pool/long_ground_truth.jpg" alt="Pool long focal Ground Truth" loading="lazy">
+                  </button>
+                  <figcaption>Ground Truth</figcaption>
+                </figure>
+                <figure class="method-card ours">
+                  <button class="image-open comparison-image" data-full="assets/comparisons/web/pool/long_ours.jpg" data-caption="Pool, long focal, Ours.">
+                    <img src="assets/comparisons/web/pool/long_ours.jpg" alt="Pool long focal Ours" loading="lazy">
+                  </button>
+                  <figcaption>Ours</figcaption>
+                </figure>
+                <figure class="method-card">
+                  <button class="image-open comparison-image" data-full="assets/comparisons/web/pool/long_mip_splatting.jpg" data-caption="Pool, long focal, Mip-Splatting.">
+                    <img src="assets/comparisons/web/pool/long_mip_splatting.jpg" alt="Pool long focal Mip-Splatting" loading="lazy">
+                  </button>
+                  <figcaption>Mip-Splatting</figcaption>
+                </figure>
+                <figure class="method-card">
+                  <button class="image-open comparison-image" data-full="assets/comparisons/web/pool/long_msgs.jpg" data-caption="Pool, long focal, MSGS.">
+                    <img src="assets/comparisons/web/pool/long_msgs.jpg" alt="Pool long focal MSGS" loading="lazy">
+                  </button>
+                  <figcaption>MSGS</figcaption>
+                </figure>
+                <figure class="method-card">
+                  <button class="image-open comparison-image" data-full="assets/comparisons/web/pool/long_zoomgs.jpg" data-caption="Pool, long focal, ZoomGS.">
+                    <img src="assets/comparisons/web/pool/long_zoomgs.jpg" alt="Pool long focal ZoomGS" loading="lazy">
+                  </button>
+                  <figcaption>ZoomGS</figcaption>
+                </figure>
+                <figure class="method-card">
+                  <button class="image-open comparison-image" data-full="assets/comparisons/web/pool/long_dofgs.jpg" data-caption="Pool, long focal, DoFGS.">
+                    <img src="assets/comparisons/web/pool/long_dofgs.jpg" alt="Pool long focal DoFGS" loading="lazy">
+                  </button>
+                  <figcaption>DoFGS</figcaption>
+                </figure>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="real-world" class="section">
+        <div class="container">
+          <div class="section-heading">
+            <h2>Real-World Results</h2>
+            <p>Qualitative real-world result from the paper.</p>
+          </div>
+          <figure>
+            <button class="image-open figure-frame" data-full="assets/real/paper_fig9_plant_real_comparison.png" data-caption="Real-world qualitative comparison on Plant.">
+              <img
+                src="assets/real/paper_fig9_plant_real_comparison.png"
+                alt="Real-world Plant qualitative comparison with Ground Truth, Ours, Mip-Splatting, MSGS, ZoomGS, and DoFGS"
+                loading="lazy"
+              >
+            </button>
+            <figcaption>Plant</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section id="bibtex" class="section">
+        <div class="container narrow">
+          <h2>BibTeX</h2>
+          <p class="metadata-note">The anonymous review PDF is not an authoritative public citation. Final author and proceedings metadata will be added before publication.</p>
+          <pre><code>@inproceedings{focalgs2026,
+  title     = {FocalGS: Adaptive Focal 3D Gaussian Splatting for Continuous Zoom Rendering},
+  author    = {FocalGS Authors},
+  booktitle = {SIGGRAPH Asia},
+  year      = {2026},
+  note      = {To appear}
+}</code></pre>
+        </div>
+      </section>
+
+      <section id="acknowledgements" class="section compact">
+        <div class="container narrow">
+          <h2>Acknowledgements</h2>
+          <p>
+            This project builds upon prior work in 3D Gaussian Splatting and related Gaussian-based rendering frameworks, including components from Scaffold-GS-style anchor representations and Gaussian rasterization libraries.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <p>FocalGS project page preview.</p>
+      </div>
+    </footer>
+
+    <dialog class="lightbox" id="imageDialog" aria-label="Image preview">
+      <button class="dialog-close" type="button" aria-label="Close preview">&times;</button>
+      <img id="dialogImage" src="" alt="">
+      <p id="dialogCaption"></p>
+    </dialog>
+
+    <script src="static/js/main.js"></script>
+  </body>
+</html>

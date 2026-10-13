@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: >-
+  Public author and proceedings metadata are pending. Do not publish or cite
+  this placeholder record as the final paper citation.
+title: "FocalGS: Adaptive Focal 3D Gaussian Splatting for Continuous Zoom Rendering"
+type: software
+authors:
+  - name: "FocalGS authors (public list pending)"
+repository-code: "https://github.com/lzy021205/FocalGS"
+abstract: >-
+  FocalGS reconstructs a unified focal-adaptive 3D Gaussian representation
+  from multi-view, multi-focal observations for continuous viewpoint and zoom
+  rendering.
+keywords:
+  - 3D Gaussian Splatting
+  - novel view synthesis
+  - continuous zoom
+  - computational photography
