@@ -8,11 +8,12 @@ Gaussian attributes and physical defocus supervision.
 Resources:
 
 - Code: https://github.com/lzy021205/FocalGS
-- Project page: included in `project_page/`; public URL will be activated after approval
+- Project page: https://lzy021205.github.io/FocalGS/
 - Paper: *SIGGRAPH Asia 2026 Conference Papers*, DOI
   [10.1145/3829340.3842186](https://doi.org/10.1145/3829340.3842186)
-- Dataset: offline release candidates documented in `DATASET.md` and
-  `REAL_DATASET.md`; public URLs will be inserted after approval
+- Dataset: [Liuzeyu456/FocalGS-Dataset](https://huggingface.co/datasets/Liuzeyu456/FocalGS-Dataset),
+  with synthetic and real-data protocols documented in `DATASET.md` and
+  `REAL_DATASET.md`
 
 **Zeyu Liu, Chao Wang, Jiahao Wu, Jie Liang, Ronggang Wang**
 
