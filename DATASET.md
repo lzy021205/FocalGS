@@ -109,7 +109,7 @@ Toy, Plant, and Bear are separate short-named downloads:
 benchmark. Toy is a five-focal subset of the historical Toy archive; Plant and
 Bear use the later clean strict splits. This benchmark is not the original
 paper-experiment dataset. Actual counts, provenance, and camera limitations are
-recorded in `REAL_DATASET.md` and `docs/REAL_DATA_PROVENANCE.md`.
+recorded in `REAL_DATASET.md`.
 
 ## Redistribution status
 
@@ -118,5 +118,5 @@ authorized by the project release authority. This release authorization does
 not establish ownership of upstream Blender assets or assign a new license to
 them. Tanabata, Cozyroom, Pool, and Factory appear to derive from scene assets
 also used by Deblur-NeRF, while parts of the exact upstream asset-license chain
-could not be recovered from the research archive. See
-`docs/SYNTHETIC_DATA_PROVENANCE.md` for the evidence recorded for each scene.
+could not be recovered from the research archive. This release does not assert
+a new license for those upstream assets.

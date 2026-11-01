@@ -161,8 +161,7 @@ aperture, and focus metadata are required for faithful FocalGS behavior.
 
 See `DATASET.md` for scene statistics, archive integrity checks, and the exact
 synthetic split. See `docs/IMPLEMENTATION_NOTES.md` for paper/code differences
-and the intentional Ship resolution mismatch. See
-`docs/SYNTHETIC_DATA_PROVENANCE.md` for the scene-by-scene rights record.
+and the intentional Ship resolution mismatch.
 
 ## Training
 
@@ -295,10 +294,8 @@ The public real-data downloads are `real/toy/toy.tar.gz`,
 post-paper strict 24--85 mm benchmark. Toy is derived from the historical Toy
 archive by removing only its 105 mm frames; Plant and Bear use the later clean
 strict splits. It is not the original paper-experiment dataset.
-`docs/REAL_DATA_PROVENANCE.md` records the versions, split counts, camera
-limitations, and privacy review. `REAL_DATASET.md` gives the portable archive
-layout, checksums, and verification commands. The release record is under
-`release/real/`.
+`REAL_DATASET.md` records the versions, split counts, camera limitations,
+portable archive layout, checksums, and verification commands.
 
 ## Reproducibility Notes
 
@@ -347,5 +344,5 @@ See `LICENSE` and `THIRD_PARTY.md`. The repository inherits the
 Gaussian-Splatting research-only, non-commercial terms; it is source-available
 for research and evaluation and is not licensed for unrestricted commercial
 use. Dataset publication authorization, upstream source evidence, and protocol
-notes are described in `DATASET.md`, `REAL_DATASET.md`,
-`docs/SYNTHETIC_DATA_PROVENANCE.md`, and `docs/REAL_DATA_PROVENANCE.md`.
+notes relevant to public use are described in `DATASET.md` and
+`REAL_DATASET.md`.

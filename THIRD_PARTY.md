@@ -53,5 +53,4 @@ inventing an upstream commit.
 The root `LICENSE` is the Gaussian-Splatting research-only, non-commercial
 license. It permits redistribution under its conditions but is not an
 unrestricted open-source license. Dataset and scene-asset licenses are separate
-from the code license and are tracked in `DATASET.md` and
-`docs/RELEASE_CHECKLIST.md`.
+from the code license and are described in `DATASET.md` and `REAL_DATASET.md`.
