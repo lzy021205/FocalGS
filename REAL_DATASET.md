@@ -26,8 +26,9 @@ lengths, and two held-out viewpoints. See `docs/REAL_DATA_PROVENANCE.md` and
 `docs/REAL_PROTOCOL_DISCLOSURE_DRAFT.md` for the
 evidence and disclosure text.
 
-The archive and its machine-readable statistics are under
-`real/experimental_archive/`.
+The frozen archive is under `real/experimental_archive/`. Its version, split
+statistics, and SHA256 are recorded in this document and the root
+`SHA256SUMS`.
 
 ## Post-paper Clean Benchmark
 
@@ -47,8 +48,9 @@ This benchmark was derived after the paper experiments from later clean data.
 It must not replace or be described as the paper-experiment dataset. There is
 no corresponding strict Toy dataset.
 
-The archive and its machine-readable statistics are under
-`real/postpaper_clean_benchmark/`.
+The frozen archive is under `real/postpaper_clean_benchmark/`. Its version,
+split statistics, and SHA256 are recorded in this document and the root
+`SHA256SUMS`.
 
 ## Layout and use
 
