@@ -9,7 +9,7 @@ confused.
 
 ## Public benchmark
 
-Version: `FocalGS-Real-PostPaper-Strict-24-85-v2`
+Version: `FocalGS-Real-PostPaper-Strict-24-85-v3`
 
 | Scene | Public-source lineage | Train/test | Included focals (mm) | Resolution |
 | --- | --- | ---: | --- | --- |
@@ -27,18 +27,12 @@ Plant and Bear retain the later clean strict splits. Their focal grids are
 uneven because only successfully registered images are included. Plant has
 58/14 train/test images; Bear has 57/13.
 
-Archive: `focalgs_real_postpaper_strict_24_85_v2.tar.gz`
-
-Bytes: `130977079`
-
-SHA256:
-`5d73b83e8409dabc948bde03be3d38d72b2fcea18787c4be8c391d2f89ff96a1`
-
-The archive has 217 PNGs, six split JSON files, nine sparse COLMAP binaries,
-and its internal manifest and checksum list. It has no symbolic links, raw CR3
-files, embedded image metadata, databases, pickle files, caches, or unrelated
-intermediates. All three scenes were extracted and loaded with the frozen
-FocalGS reader.
+The public files are `real/toy/toy.tar.gz`, `real/plant/plant.tar.gz`, and
+`real/bear/bear.tar.gz`. Together they have 217 PNGs, six split JSON files, and
+nine sparse COLMAP binaries. They have no symbolic links, raw CR3 files,
+embedded image metadata, databases, pickle files, caches, or unrelated
+intermediates. All three archives were extracted and loaded with the frozen
+FocalGS reader. Exact sizes and SHA256 values are in `REAL_DATASET.md`.
 
 ## Historical paper-experiment evidence
 

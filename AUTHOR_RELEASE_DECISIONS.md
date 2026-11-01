@@ -7,7 +7,9 @@
 
 ## 真实数据
 
-公开真实数据仅保留统一的 **Post-paper Strict 24--85 mm Benchmark v2**：
+公开真实数据仅保留 **Post-paper Strict 24--85 mm Benchmark v3**，并按场景
+分别发布为 `real/toy/toy.tar.gz`、`real/plant/plant.tar.gz` 和
+`real/bear/bear.tar.gz`：
 
 - Toy：从历史 Toy split 中保留 24、35、50、70、85 mm，实际 60/15；
 - Plant：后续 clean strict split，实际 58/14；

@@ -17,8 +17,8 @@ from collections import Counter
 from pathlib import Path
 
 
-DEFAULT_OUTPUT = Path("release_staging/real_postpaper_strict_v2")
-VERSION = "FocalGS-Real-PostPaper-Strict-24-85-v2"
+DEFAULT_OUTPUT = Path("release_staging/real_scene_archives_v3")
+VERSION = "FocalGS-Real-PostPaper-Strict-24-85-v3"
 ALLOWED_FOCALS = {24.0, 35.0, 50.0, 70.0, 85.0}
 
 SPARSE_FILES = ("cameras.bin", "images.bin", "points3D.bin")
@@ -158,41 +158,6 @@ def copy_scene(source: Path, destination: Path, *, scene: str, source_note: str)
     }
 
 
-def file_manifest(root: Path) -> list[dict]:
-    records = []
-    for path in sorted(item for item in root.rglob("*") if item.is_file()):
-        records.append(
-            {
-                "path": path.relative_to(root).as_posix(),
-                "bytes": path.stat().st_size,
-                "sha256": sha256(path),
-            }
-        )
-    return records
-
-
-def write_manifest(root: Path, summary: dict) -> None:
-    records = file_manifest(root)
-    (root / "MANIFEST.json").write_text(
-        json.dumps(
-            {
-                "format": "FocalGS real-data portable candidate",
-                "version": VERSION,
-                "scenes": summary,
-                "files": records,
-                "file_count": len(records),
-                "total_bytes": sum(item["bytes"] for item in records),
-            },
-            indent=2,
-        )
-        + "\n",
-        encoding="utf-8",
-    )
-    with (root / "SHA256SUMS").open("w", encoding="utf-8") as stream:
-        for item in records:
-            stream.write(f"{item['sha256']}  {item['path']}\n")
-
-
 def make_archive(source: Path, archive: Path) -> None:
     tar_command = [
         "tar",
@@ -252,7 +217,7 @@ def main() -> None:
     if output.exists():
         raise FileExistsError(f"Refusing to overwrite existing candidate: {output}")
 
-    release_root = output / "focalgs_real_postpaper_strict_24_85_v2"
+    release_root = output / "payload"
     summary = {}
     strict_base = (
         research_root
@@ -290,17 +255,21 @@ def main() -> None:
     (output / "BUILD_SUMMARY.json").write_text(
         json.dumps(summary, indent=2) + "\n", encoding="utf-8"
     )
-    write_manifest(release_root, summary)
     verify_tree(release_root)
 
-    archive = output / "focalgs_real_postpaper_strict_24_85_v2.tar.gz"
-    make_archive(release_root, archive)
+    archives = []
+    for scene in ("toy", "plant", "bear"):
+        archive = output / f"{scene}.tar.gz"
+        make_archive(release_root / scene, archive)
+        archives.append(archive)
     (output / "SHA256SUMS").write_text(
-        f"{sha256(archive)}  {archive.name}\n", encoding="utf-8"
+        "".join(f"{sha256(archive)}  {archive.name}\n" for archive in archives),
+        encoding="utf-8",
     )
 
     print(json.dumps(summary, indent=2))
-    print(f"{sha256(archive)}  {archive}  {archive.stat().st_size} bytes")
+    for archive in archives:
+        print(f"{sha256(archive)}  {archive}  {archive.stat().st_size} bytes")
 
 
 if __name__ == "__main__":

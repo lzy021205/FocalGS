@@ -289,14 +289,15 @@ The public canonical synthetic configs cover:
 
 ## Real-World Data
 
-The public real-data download is the unified post-paper strict 24--85 mm
-benchmark for Toy, Plant, and Bear. Toy is derived from the historical Toy
+The public real-data downloads are `real/toy/toy.tar.gz`,
+`real/plant/plant.tar.gz`, and `real/bear/bear.tar.gz`. Together they form the
+post-paper strict 24--85 mm benchmark. Toy is derived from the historical Toy
 archive by removing only its 105 mm frames; Plant and Bear use the later clean
 strict splits. It is not the original paper-experiment dataset.
 `docs/REAL_DATA_PROVENANCE.md` records the versions, split counts, camera
 limitations, and privacy review. `REAL_DATASET.md` gives the portable archive
-layout, checksum, and verification commands. The release record is under
-`release/real/postpaper_strict_24_85/`.
+layout, checksums, and verification commands. The release record is under
+`release/real/`.
 
 ## Reproducibility Notes
 

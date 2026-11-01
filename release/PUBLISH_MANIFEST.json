@@ -10,24 +10,45 @@
     },
     {
       "id": "synthetic-data",
-      "artifacts": 7,
+      "artifacts": [
+        "synthetic/tanabata/tanabata.tar",
+        "synthetic/cozyroom/cozyroom.tar",
+        "synthetic/pool/pool.tar",
+        "synthetic/factory/factory.tar",
+        "synthetic/building/building.tar",
+        "synthetic/livingroom/livingroom.tar",
+        "synthetic/ship/ship.tar"
+      ],
       "bytes": 2615388160,
-      "classification": "public; upstream asset provenance remains documented per scene"
+      "classification": "public; upstream asset provenance remains documented per scene",
+      "artifact_count": 7
     },
     {
       "id": "real-postpaper-strict-24-85",
       "label": "Post-paper Strict 24--85 mm Benchmark",
-      "version": "FocalGS-Real-PostPaper-Strict-24-85-v2",
-      "artifact": "focalgs_real_postpaper_strict_24_85_v2.tar.gz",
-      "companion_directory": "release/real/postpaper_strict_24_85",
-      "scenes": [
-        "toy",
-        "plant",
-        "bear"
-      ],
+      "version": "FocalGS-Real-PostPaper-Strict-24-85-v3",
+      "companion_directory": "release/real",
       "images": 217,
-      "bytes": 130977079,
-      "sha256": "5d73b83e8409dabc948bde03be3d38d72b2fcea18787c4be8c391d2f89ff96a1",
+      "artifacts": [
+        {
+          "scene": "toy",
+          "path": "real/toy/toy.tar.gz",
+          "bytes": 46593274,
+          "sha256": "b4f676b8cbfc4f6f494fdd24919684f4c98907e4c05615069d85f910f676a1c6"
+        },
+        {
+          "scene": "plant",
+          "path": "real/plant/plant.tar.gz",
+          "bytes": 43554352,
+          "sha256": "d7ebfe603cf7653fb38e11d7b15e7ba5726a1ff5cde6fe727f8715ed4977fa43"
+        },
+        {
+          "scene": "bear",
+          "path": "real/bear/bear.tar.gz",
+          "bytes": 40799891,
+          "sha256": "47ca2a673a1f8cd88060bec68611c82d8fdff82e126ef7e38071e2902f72d746"
+        }
+      ],
       "classification": "public post-paper benchmark; not the original paper-experiment dataset",
       "toy_provenance": "strict subset of historical Toy archive; Plant/Bear use later clean strict splits"
     }

@@ -9,6 +9,10 @@ The candidate contains seven scenes. Each scene has 49 camera viewpoints and 9
 focal settings per viewpoint. Nine viewpoints, including all their focal
 settings, are held out for testing.
 
+Each public archive uses the short path `synthetic/<scene>/<scene>.tar`. The
+seven frozen archive byte streams were not rebuilt when these names were
+shortened, so their existing SHA256 values remain unchanged.
+
 | Scene | Train blur | Train sharp | Test sharp | Image size | Focal range (mm) | f-number | Focus distance (m) | Candidate bytes |
 | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |
 | Tanabata | 360 | 360 | 81 | 600 x 400 | 2.5--20 | 0.6 | 7.027--7.033 | 416,008,225 |
@@ -102,10 +106,11 @@ ground truth. Add `--render_blur` only when physical defocus output is wanted.
 
 ## Real scenes
 
-Toy, Plant, and Bear are distributed together under
-`real/postpaper_strict_24_85/` as the post-paper strict 24--85 mm benchmark.
-Toy is a five-focal subset of the historical Toy archive; Plant and Bear use
-the later clean strict splits. This benchmark is not the original
+Toy, Plant, and Bear are separate short-named downloads:
+`real/toy/toy.tar.gz`, `real/plant/plant.tar.gz`, and
+`real/bear/bear.tar.gz`. Together they form the post-paper strict 24--85 mm
+benchmark. Toy is a five-focal subset of the historical Toy archive; Plant and
+Bear use the later clean strict splits. This benchmark is not the original
 paper-experiment dataset. Actual counts, provenance, and camera limitations are
 recorded in `REAL_DATASET.md` and `docs/REAL_DATA_PROVENANCE.md`.
 

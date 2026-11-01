@@ -66,17 +66,20 @@ def main() -> None:
                 raise RuntimeError(f"Stale metadata marker in {path}: {marker}")
 
     master_sums = read_sums(ROOT / "release/SHA256SUMS")
-    companion_dirs = (ROOT / "release/real/postpaper_strict_24_85",)
+    companion_dirs = (ROOT / "release/real",)
     for directory in companion_dirs:
         stats = json.loads((directory / "DATASET_STATS.json").read_text(encoding="utf-8"))
         version = (directory / "VERSION").read_text(encoding="utf-8").strip()
         if stats["version"] != version:
             raise RuntimeError(f"Version mismatch in {directory}")
         companion_sums = read_sums(directory / "SHA256SUMS")
-        if companion_sums.get(stats["archive"]) != stats["sha256"]:
-            raise RuntimeError(f"Companion checksum mismatch in {directory}")
-        if master_sums.get(stats["archive"]) != stats["sha256"]:
-            raise RuntimeError(f"Master checksum mismatch for {stats['archive']}")
+        for artifact in stats["archives"]:
+            archive = artifact["archive"]
+            digest = artifact["sha256"]
+            if companion_sums.get(archive) != digest:
+                raise RuntimeError(f"Companion checksum mismatch for {archive}")
+            if master_sums.get(archive) != digest:
+                raise RuntimeError(f"Master checksum mismatch for {archive}")
 
     json.loads((ROOT / "release/PUBLISH_MANIFEST.json").read_text(encoding="utf-8"))
 

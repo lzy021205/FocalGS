@@ -1,0 +1,39 @@
+{
+  "version": "FocalGS-Real-PostPaper-Strict-24-85-v3",
+  "total_images": 217,
+  "archives": [
+    {
+      "scene": "toy",
+      "archive": "toy.tar.gz",
+      "path": "real/toy/toy.tar.gz",
+      "bytes": 46593274,
+      "sha256": "b4f676b8cbfc4f6f494fdd24919684f4c98907e4c05615069d85f910f676a1c6",
+      "train": 60,
+      "test": 15,
+      "resolution": [800, 533],
+      "source": "historical Toy archive filtered to the strict focal set"
+    },
+    {
+      "scene": "plant",
+      "archive": "plant.tar.gz",
+      "path": "real/plant/plant.tar.gz",
+      "bytes": 43554352,
+      "sha256": "d7ebfe603cf7653fb38e11d7b15e7ba5726a1ff5cde6fe727f8715ed4977fa43",
+      "train": 58,
+      "test": 14,
+      "resolution": [800, 534],
+      "source": "later clean strict split"
+    },
+    {
+      "scene": "bear",
+      "archive": "bear.tar.gz",
+      "path": "real/bear/bear.tar.gz",
+      "bytes": 40799891,
+      "sha256": "47ca2a673a1f8cd88060bec68611c82d8fdff82e126ef7e38071e2902f72d746",
+      "train": 57,
+      "test": 13,
+      "resolution": [800, 534],
+      "source": "later clean strict split"
+    }
+  ]
+}
