@@ -135,8 +135,10 @@ files must not be published without a full metadata scrub and a capture-rights
 review. Later clean JSON exposes source CR3 filenames, exposure, ISO, lens model,
 and focus metadata; those fields require a deliberate public-metadata decision.
 
-The real scenes may also reveal the capture environment. Before release, the
-authors must confirm ownership/consent for the depicted objects and locations.
+The project release authority has approved publication of the sanitized PNGs
+and camera data in the two frozen real-data archives, including the depicted
+objects and capture environments. This approval does not extend to raw CR3
+files, which remain excluded together with serial numbers and capture metadata.
 
 ## Portable candidates
 

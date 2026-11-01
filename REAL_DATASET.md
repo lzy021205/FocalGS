@@ -1,7 +1,7 @@
 # FocalGS Real-Scene Data
 
-This document describes the two offline real-data release candidates prepared
-on 2026-10-13. They are separate datasets and must remain separate downloads.
+This document describes two frozen real-data releases prepared on 2026-10-13.
+They remain separate downloads in this repository.
 
 ## Experimental Archive
 
@@ -22,12 +22,12 @@ These versions are linked to the available final-run scripts, logs, output
 configuration, and 30,000-iteration checkpoints. They are the most reliable
 recoverable versions used by the pre-paper experiments. They are not an exact
 implementation of the paper prose that describes 15 viewpoints, five focal
-lengths, and two held-out viewpoints. See
-`docs/REAL_DATA_PROVENANCE.md` and
-`docs/REAL_PROTOCOL_DISCLOSURE_DRAFT.md` before publishing results.
+lengths, and two held-out viewpoints. See `docs/REAL_DATA_PROVENANCE.md` and
+`docs/REAL_PROTOCOL_DISCLOSURE_DRAFT.md` for the
+evidence and disclosure text.
 
-The distribution companion files, including machine-readable statistics, are
-under `release/real/experimental_archive/`.
+The archive and its machine-readable statistics are under
+`real/experimental_archive/`.
 
 ## Post-paper Clean Benchmark
 
@@ -47,8 +47,8 @@ This benchmark was derived after the paper experiments from later clean data.
 It must not replace or be described as the paper-experiment dataset. There is
 no corresponding strict Toy dataset.
 
-The distribution companion files, including machine-readable statistics, are
-under `release/real/postpaper_clean_benchmark/`.
+The archive and its machine-readable statistics are under
+`real/postpaper_clean_benchmark/`.
 
 ## Layout and use
 
@@ -87,11 +87,8 @@ coefficients. Published results and downstream users must be told this.
 ## Verification
 
 ```bash
-python scripts/release/verify_release.py /path/to/SHA256SUMS
-python scripts/release/verify_release.py \
-  /path/to/focalgs_real_paper_experiment_candidate.tar.gz \
-  /path/to/focalgs_real_postpaper_strict_24_85.tar.gz
+python verify_downloads.py /path/to/downloaded/repository
 ```
 
-Downloads remain disabled until patent, capture-rights, privacy, and coauthor
-protocol review are approved.
+The archives exclude raw captures and identifying camera metadata. Their actual
+protocol differences remain disclosed with the release.

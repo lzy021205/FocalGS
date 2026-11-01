@@ -345,5 +345,6 @@ representations, `diff-gaussian-rasterization`, `simple-knn`, and
 See `LICENSE` and `THIRD_PARTY.md`. The repository inherits the
 Gaussian-Splatting research-only, non-commercial terms; it is source-available
 for research and evaluation and is not licensed for unrestricted commercial
-use. Dataset assets have separate redistribution requirements described in
-`DATASET.md`, `REAL_DATASET.md`, and `docs/RELEASE_CHECKLIST.md`.
+use. Dataset publication authorization, upstream source evidence, and protocol
+notes are described in `DATASET.md`, `REAL_DATASET.md`,
+`docs/SYNTHETIC_DATA_PROVENANCE.md`, and `docs/REAL_DATA_PROVENANCE.md`.

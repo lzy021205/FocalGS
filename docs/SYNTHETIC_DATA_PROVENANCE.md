@@ -11,13 +11,13 @@ not grant rights to every Blender asset used by its datasets.
 
 | FocalGS scene | Best-supported source | Publisher or creator | Asset license evidence | Release decision |
 | --- | --- | --- | --- | --- |
-| Tanabata | Custom multi-focal rerender of the Deblur-NeRF `tanabata` scene | Deblur-NeRF dataset by Ma et al.; underlying asset creator unknown | Deblur-NeRF publishes data and raw Blender files, but no asset-specific license was found. A later public license inventory also leaves this scene's author/license fields blank. | Authorization pending |
-| Cozyroom | Custom multi-focal rerender of the Deblur-NeRF `cozyroom` scene | Deblur-NeRF dataset by Ma et al.; underlying asset creator unknown | No asset-specific redistribution license found | Authorization pending |
-| Pool | Custom multi-focal rerender of the Deblur-NeRF `pool` scene | Deblur-NeRF dataset by Ma et al.; underlying asset creator unknown | No asset-specific redistribution license found | Authorization pending |
-| Factory | Custom multi-focal rerender of the Deblur-NeRF `factory` scene | Deblur-NeRF dataset by Ma et al.; underlying asset creator unknown | No asset-specific redistribution license found | Authorization pending |
-| Building | Local Blender scene named `buildings`; no public source package identified | Unknown | No creator, source URL, or license recovered | Authorization pending |
-| Livingroom | Strong visual/name match to BlendSwap **Bachelor's quarters**, blend 17574 | Rendars | BlendSwap currently labels the asset CC0. The local `.blend` file or source hash is absent, so the exact derivation still requires author attestation. | Conditional: obtain author attestation that this is the source |
-| Ship | Local icy-cliff/sailing-ship scene; no public source package identified | Unknown | No creator, source URL, or license recovered | Authorization pending |
+| Tanabata | Custom multi-focal rerender of the Deblur-NeRF `tanabata` scene | Deblur-NeRF dataset by Ma et al.; underlying asset creator unknown | Deblur-NeRF publishes data and raw Blender files, but no asset-specific license was found. A later public license inventory also leaves this scene's author/license fields blank. | FocalGS public release authorized; upstream asset-license record incomplete |
+| Cozyroom | Custom multi-focal rerender of the Deblur-NeRF `cozyroom` scene | Deblur-NeRF dataset by Ma et al.; underlying asset creator unknown | No asset-specific redistribution license found | FocalGS public release authorized; upstream asset-license record incomplete |
+| Pool | Custom multi-focal rerender of the Deblur-NeRF `pool` scene | Deblur-NeRF dataset by Ma et al.; underlying asset creator unknown | No asset-specific redistribution license found | FocalGS public release authorized; upstream asset-license record incomplete |
+| Factory | Custom multi-focal rerender of the Deblur-NeRF `factory` scene | Deblur-NeRF dataset by Ma et al.; underlying asset creator unknown | No asset-specific redistribution license found | FocalGS public release authorized; upstream asset-license record incomplete |
+| Building | Local Blender scene named `buildings`; no public source package identified | Unknown | No creator, source URL, or license recovered | FocalGS public release authorized; upstream source/license record incomplete |
+| Livingroom | Strong visual/name match to BlendSwap **Bachelor's quarters**, blend 17574 | Rendars | BlendSwap currently labels the asset CC0. The local `.blend` file or source hash is absent, so the exact derivation still requires author attestation. | FocalGS public release authorized; exact source attribution remains unverified |
+| Ship | Local icy-cliff/sailing-ship scene; no public source package identified | Unknown | No creator, source URL, or license recovered | FocalGS public release authorized; upstream source/license record incomplete |
 
 The four Deblur-NeRF scene names and raw Blender release are documented by the
 [official project page](https://limacv.github.io/deblurnerf/) and
@@ -39,15 +39,11 @@ current BlendSwap page identifies the license as CC0. Because the exact source
 authors should confirm that this was the asset actually rendered before relying
 on that license.
 
-## Rights needed before publication
+## Authorization and license scope
 
-For each scene, retain a signed or archived record that identifies the exact
-asset, creator, source URL or source file checksum, license version, attribution
-requirements, modification permission, and permission to redistribute rendered
-images and the accompanying camera/COLMAP data. If an asset contains separately
-licensed textures or models, cover those components as well.
-
-The seven frozen FocalGS archives are technically complete, but this audit does
-not establish sufficient redistribution authority for any archive without the
-remaining author/IP review. No dataset license should be attached to them until
-that review records the applicable rights scene by scene.
+The project release authority has authorized public redistribution of the seven
+frozen FocalGS rendered archives. The source audit above is retained so that
+this publication approval is not mistaken for proof of ownership or a new
+license grant for upstream Blender assets, textures, or models. Where an exact
+asset-specific license was not recovered, no standard repository-wide data
+license is asserted on its behalf.
