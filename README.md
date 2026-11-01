@@ -10,10 +10,11 @@ Resources:
 - Code: https://github.com/lzy021205/FocalGS
 - Project page: https://lzy021205.github.io/FocalGS/
 - Paper: *SIGGRAPH Asia 2026 Conference Papers*, DOI
-  [10.1145/3829340.3842186](https://doi.org/10.1145/3829340.3842186)
+  `10.1145/3829340.3842186` (assigned; ACM resolver activation pending)
 - Dataset: [Liuzeyu456/FocalGS-Dataset](https://huggingface.co/datasets/Liuzeyu456/FocalGS-Dataset),
-  with synthetic and real-data protocols documented in `DATASET.md` and
-  `REAL_DATASET.md`
+  with [synthetic](https://huggingface.co/datasets/Liuzeyu456/FocalGS-Dataset/tree/main/synthetic)
+  and [real](https://huggingface.co/datasets/Liuzeyu456/FocalGS-Dataset/tree/main/real)
+  scene archives documented in `DATASET.md` and `REAL_DATASET.md`
 
 **Zeyu Liu, Chao Wang, Jiahao Wu, Jie Liang, Ronggang Wang**
 
@@ -112,8 +113,8 @@ COLMAP is required if your dataset does not already contain a usable sparse
 initialization under `sparse/0`.
 
 The release environment and CUDA extensions require an NVIDIA GPU for training,
-rendering, and the standard LPIPS evaluation path. Dataset manifests can be
-verified on CPU.
+rendering, and the standard LPIPS evaluation path. Dataset archive checksums can
+be verified on CPU.
 
 ## Dataset Format
 

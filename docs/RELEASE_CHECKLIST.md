@@ -1,4 +1,9 @@
-# Offline Release Checklist
+# Historical Offline Release Checklist
+
+> This is the 2026-10-13 pre-publication gate retained as a historical record.
+> It does not describe the current release status. Code and the approved dataset
+> subset are public as of 2026-11-01; current artifact checksums are recorded in
+> `release/SHA256SUMS`.
 
 Date: 2026-10-13
 

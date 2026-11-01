@@ -1,4 +1,10 @@
-# Release Execution Plan
+# Historical Release Execution Plan
+
+> This is the pre-publication execution plan retained for traceability. Its
+> future-tense commands and patent hold statements are no longer current. The
+> code repository and approved dataset subset were published by 2026-11-01;
+> use `release/PUBLISH_MANIFEST.json` and `release/SHA256SUMS` for the current
+> public artifact record.
 
 This plan is prepared for use only after patent and rights approval. It does
 not authorize a push, upload, or visibility change.
@@ -35,7 +41,7 @@ independent:
 
 Zenodo is the recommended archival host because each record can be versioned
 and assigned a citable DOI. A Hugging Face Dataset mirror may be added for
-convenient browsing, but it should point to the same version and checksums.
+convenient browsing, but it should point to the same files and checksums.
 Do not use GitHub release assets for the 2.6 GB synthetic payload.
 
 Keep every host record as an unpublished private draft until its own rights gate

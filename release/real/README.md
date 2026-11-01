@@ -1,7 +1,5 @@
 # FocalGS Real Data: Post-paper Strict 24--85 mm
 
-Version: `FocalGS-Real-PostPaper-Strict-24-85-v3`
-
 The public release uses one short-named archive per scene:
 
 - `real/toy/toy.tar.gz`

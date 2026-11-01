@@ -1,23 +1,23 @@
 # FocalGS Real-Scene Data
 
-The public real-data release is version
-`FocalGS-Real-PostPaper-Strict-24-85-v3`. Each scene is a separate download with
-the same short naming convention as common 3DGS datasets:
+The public real-data release is the **Post-paper Strict 24--85 mm Benchmark**.
+Each scene is a separate download with the same short naming convention as
+common 3DGS datasets:
 
 | Scene | Download | SHA256 | Bytes | Train/test | Image size |
 | --- | --- | --- | ---: | ---: | --- |
-| Toy | `real/toy/toy.tar.gz` | `b4f676b8cbfc4f6f494fdd24919684f4c98907e4c05615069d85f910f676a1c6` | 46,593,274 | 60 / 15 | 800 x 533 |
-| Plant | `real/plant/plant.tar.gz` | `d7ebfe603cf7653fb38e11d7b15e7ba5726a1ff5cde6fe727f8715ed4977fa43` | 43,554,352 | 58 / 14 | 800 x 534 |
-| Bear | `real/bear/bear.tar.gz` | `47ca2a673a1f8cd88060bec68611c82d8fdff82e126ef7e38071e2902f72d746` | 40,799,891 | 57 / 13 | 800 x 534 |
+| Toy | `real/toy/toy.tar.gz` | `0936000b69a4f44728521b6f39aa1a8c13858667c7114f62c28a7b1e4829f44e` | 46,592,545 | 60 / 15 | 800 x 533 |
+| Plant | `real/plant/plant.tar.gz` | `a3e459b04983da8671e31e0302221acf40842a7080512643f55cdd8e6b5454db` | 43,545,496 | 58 / 14 | 800 x 534 |
+| Bear | `real/bear/bear.tar.gz` | `35afe36b11b45fea3af91e89f9bf5a2cc1461a8344d02409914052f9fcdfb19b` | 40,792,230 | 57 / 13 | 800 x 534 |
 
 All three scenes use the focal settings 24, 35, 50, 70, and 85 mm.
 
 Toy was normalized to the same five-focal release protocol by removing only
 the 105 mm frames from its existing train/test split. No image was resized,
 reassigned, synthesized, or re-rendered. Unlike Plant and Bear, Toy does not
-come from a later clean registration, so its JSON records this provenance.
-This benchmark was prepared after the paper experiments and must not be
-described as the original paper-experiment data.
+come from a later clean registration. This benchmark was prepared after the
+paper experiments and must not be described as the original paper-experiment
+data.
 
 The focal counts reflect successful registrations rather than a repaired
 rectangular grid. Toy has 12/3 train/test images at each focal setting. Plant
@@ -48,19 +48,20 @@ embedded image metadata, databases, pickle files, caches, or symbolic links.
 
 ## Camera model
 
-Plant and Bear use per-image COLMAP `OPENCV` camera records; their public JSON
-preserves focal lengths, principal points, and `k1`, `k2`, `p1`, and `p2`.
-Toy preserves the camera fields available in its historical JSON and sparse
-model. The frozen FocalGS loader builds a centered pinhole projection from
-`camera_angle_x` and the decoded image size, so it does not apply stored
-principal-point offsets or distortion coefficients.
+Plant and Bear retain their registered COLMAP `OPENCV` cameras, including
+principal points and distortion coefficients, in `sparse/0/cameras.bin`. The
+portable runtime JSON files contain only the fields consumed by FocalGS:
+`file_path`, `transform_matrix`, `camera_angle_x`, `focal_length_mm`, `f_stop`,
+and `focal_dist_m`. The frozen loader builds a centered pinhole projection from
+`camera_angle_x` and the decoded image size, so it does not apply the sparse
+model's principal-point offsets or distortion coefficients.
 
 ## Verification
 
-From the downloaded dataset-repository root:
+Compute a downloaded archive's digest and compare it with the table above:
 
 ```bash
-python verify_downloads.py .
+sha256sum real/<scene>/<scene>.tar.gz
 ```
 
 The three scene archives were extracted and loaded with the frozen FocalGS

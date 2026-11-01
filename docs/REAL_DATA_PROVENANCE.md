@@ -9,8 +9,6 @@ confused.
 
 ## Public benchmark
 
-Version: `FocalGS-Real-PostPaper-Strict-24-85-v3`
-
 | Scene | Public-source lineage | Train/test | Included focals (mm) | Resolution |
 | --- | --- | ---: | --- | --- |
 | Toy | historical Toy archive, filtered without changing the split | 60 / 15 | 24, 35, 50, 70, 85 | 800 x 533 |

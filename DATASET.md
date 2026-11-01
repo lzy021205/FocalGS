@@ -10,22 +10,21 @@ focal settings per viewpoint. Nine viewpoints, including all their focal
 settings, are held out for testing.
 
 Each public archive uses the short path `synthetic/<scene>/<scene>.tar`. The
-seven frozen archive byte streams were not rebuilt when these names were
-shortened, so their existing SHA256 values remain unchanged.
+archives were repackaged once on 2026-11-01 to remove internal documentation and
+inventories while preserving the validated images, runtime JSON files, and
+COLMAP sparse model.
 
-| Scene | Train blur | Train sharp | Test sharp | Image size | Focal range (mm) | f-number | Focus distance (m) | Candidate bytes |
-| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |
-| Tanabata | 360 | 360 | 81 | 600 x 400 | 2.5--20 | 0.6 | 7.027--7.033 | 416,008,225 |
-| Cozyroom | 360 | 360 | 81 | 600 x 400 | 2.5--20 | 2.0 | 1.839--1.848 | 311,293,463 |
-| Pool | 360 | 360 | 81 | 600 x 400 | 3--20 | 1.0 | 2.963--2.968 | 300,322,181 |
-| Factory | 360 | 360 | 81 | 600 x 400 | 7--21 | 0.5 | 3.603--3.605 | 431,981,318 |
-| Building | 360 | 360 | 81 | 800 x 340 | 40--200 | 0.02 | 952.916--956.687 | 431,844,771 |
-| Livingroom | 360 | 360 | 81 | 800 x 450 | 20--90 | 2.0 | 6.663--6.684 | 236,646,648 |
-| Ship | 360 | 360 | 81 | see below | 40--160 | 2.0 | 5.393--5.401 | 477,027,150 |
+| Scene | Train blur | Train sharp | Test sharp | Image size | Focal range (mm) | f-number | Focus distance (m) | Archive bytes | SHA256 |
+| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | --- |
+| Tanabata | 360 | 360 | 81 | 600 x 400 | 2.5--20 | 0.6 | 7.027--7.033 | 416,450,560 | `bf6e5f474788064f27a9cebc3b80239757d0797668d7d415abb22c23c178a806` |
+| Cozyroom | 360 | 360 | 81 | 600 x 400 | 2.5--20 | 2.0 | 1.839--1.848 | 311,736,320 | `524e953584d6a99febbf343dc067c70bb5530b1058e9af16c2ae07c50afad086` |
+| Pool | 360 | 360 | 81 | 600 x 400 | 3--20 | 1.0 | 2.963--2.968 | 300,779,520 | `740c5c3c025b61a6c3e243c4c53b58899c9b9148ddf29863dccaa5d26bcf2e8a` |
+| Factory | 360 | 360 | 81 | 600 x 400 | 7--21 | 0.5 | 3.603--3.605 | 432,424,960 | `d6440f51d3887cce6b156d59f8a2bede40c0a5a982c226d848c8e98dacdead76` |
+| Building | 360 | 360 | 81 | 800 x 340 | 40--200 | 0.02 | 952.916--956.687 | 432,291,840 | `3273459df1ad6210d1fc13cb613e7f72b0a940a2546d90fe66d1f9cacd0a6297` |
+| Livingroom | 360 | 360 | 81 | 800 x 450 | 20--90 | 2.0 | 6.663--6.684 | 237,086,720 | `f7969e9a7fe53212d8f86a1150f3a8cea30cb6522a37fcee549edeb636e8e377` |
+| Ship | 360 | 360 | 81 | see below | 40--160 | 2.0 | 5.393--5.401 | 477,470,720 | `de5c253de4abd695ebf1bedc535f9b3b31ebaaa8a3554f6a2a8a549141ccaaf8` |
 
-The uncompressed candidate payload is about 2.43 GiB. The table reports the
-extracted scene payload and does not include the final archive container
-overhead.
+The seven uncompressed tar archives total 2,608,240,640 bytes (about 2.43 GiB).
 
 Ship has 800 x 384 defocused training images and 800 x 395 sharp train/test
 images. This is intentional and has not been resized. FocalGS reads each
@@ -69,12 +68,10 @@ The sparse COLMAP model supplies the initial point cloud.
 
 ## Integrity verification
 
-Verify all downloaded archives from the repository root:
+Compute a downloaded archive's digest and compare it with the table above:
 
 ```bash
-sha256sum --check SHA256SUMS
-# or
-python verify_downloads.py .
+sha256sum synthetic/<scene>/<scene>.tar
 ```
 
 Before publication, offline validation checked every JSON path, every 4 x 4

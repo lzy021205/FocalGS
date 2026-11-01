@@ -69,9 +69,6 @@ def main() -> None:
     companion_dirs = (ROOT / "release/real",)
     for directory in companion_dirs:
         stats = json.loads((directory / "DATASET_STATS.json").read_text(encoding="utf-8"))
-        version = (directory / "VERSION").read_text(encoding="utf-8").strip()
-        if stats["version"] != version:
-            raise RuntimeError(f"Version mismatch in {directory}")
         companion_sums = read_sums(directory / "SHA256SUMS")
         for artifact in stats["archives"]:
             archive = artifact["archive"]

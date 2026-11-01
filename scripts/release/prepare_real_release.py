@@ -17,8 +17,7 @@ from collections import Counter
 from pathlib import Path
 
 
-DEFAULT_OUTPUT = Path("release_staging/real_scene_archives_v3")
-VERSION = "FocalGS-Real-PostPaper-Strict-24-85-v3"
+DEFAULT_OUTPUT = Path("release_staging/real_scene_archives")
 ALLOWED_FOCALS = {24.0, 35.0, 50.0, 70.0, 85.0}
 
 SPARSE_FILES = ("cameras.bin", "images.bin", "points3D.bin")
@@ -26,41 +25,11 @@ PUBLIC_FRAME_FIELDS = {
     "file_path",
     "transform_matrix",
     "camera_angle_x",
-    "camera_angle_y",
     "focal_length_mm",
     "f_stop",
     "focal_dist_m",
-    "width",
-    "height",
-    "fl_x",
-    "fl_y",
-    "cx",
-    "cy",
-    "k1",
-    "k2",
-    "p1",
-    "p2",
-    "colmap_camera_model",
-    "colmap_camera_id",
-    "colmap_image_id",
-    "resize_scale",
-    "focus_distance_source",
-    "valid_split_role",
-    "viewpoint_id",
 }
-PUBLIC_TOP_FIELDS = {
-    "camera_angle_x",
-    "camera_angle_y",
-    "camera_model_runtime_note",
-    "colmap_camera_model",
-    "width",
-    "height",
-    "fl_x",
-    "fl_y",
-    "cx",
-    "cy",
-    "valid_split_note",
-}
+PUBLIC_TOP_FIELDS = {"camera_angle_x"}
 
 
 def sha256(path: Path) -> str:
@@ -93,16 +62,8 @@ def load_splits(source: Path) -> dict[str, dict]:
     return result
 
 
-def sanitize_strict(data: dict, scene: str, source_note: str) -> dict:
+def sanitize_strict(data: dict) -> dict:
     public = {key: value for key, value in data.items() if key in PUBLIC_TOP_FIELDS}
-    public["release_dataset_label"] = "post-paper strict 24--85 mm benchmark"
-    public["release_version"] = VERSION
-    public["release_source_note"] = source_note
-    public["release_metadata_note"] = (
-        "Raw filenames, camera serial metadata, capture timestamps, exposure, ISO, "
-        "lens-model strings, and EXIF focus bounds were removed for release."
-    )
-    public["scene"] = scene
     public["frames"] = [
         {key: value for key, value in frame.items() if key in PUBLIC_FRAME_FIELDS}
         for frame in data.get("frames", [])
@@ -120,7 +81,7 @@ def copy_scene(source: Path, destination: Path, *, scene: str, source_note: str)
 
     for json_name, data in splits.items():
         split_name = json_name.removeprefix("transforms_").removesuffix(".json")
-        out_data = sanitize_strict(data, scene, source_note)
+        out_data = sanitize_strict(data)
         frames = out_data.get("frames", [])
         split_counts[split_name] = len(frames)
         focal_counts[split_name] = dict(
@@ -152,6 +113,8 @@ def copy_scene(source: Path, destination: Path, *, scene: str, source_note: str)
         shutil.copy2(source_file, sparse_out / name, follow_symlinks=True)
 
     return {
+        "scene": scene,
+        "source_note": source_note,
         "splits": split_counts,
         "focal_counts": focal_counts,
         "unique_images": len(refs),
