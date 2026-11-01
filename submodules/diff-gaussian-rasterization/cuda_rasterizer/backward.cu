@@ -432,7 +432,7 @@ __global__ void preprocessCUDA(
 	// That's the second part of the mean gradient. Previous computation
 	// of cov2D and following SH conversion also affects it.
 	dL_dmeans[idx] += dL_dmean;
-  // [新增] 从论文版移植的深度求导逻辑！
+
 	// the w must be equal to 1 for view^T * [x,y,z,1]
 	float3 m_view = transformPoint4x3(m, view);
 
@@ -446,7 +446,7 @@ __global__ void preprocessCUDA(
 
 	// That's the third part of the mean gradient.
 	dL_dmeans[idx] += dL_dmean2;
-	// [新增结束]
+
 	// Compute gradient updates due to computing colors from SHs
 	if (shs)
 		computeColorFromSH(idx, D, M, (glm::vec3*)means, *campos, shs, clamped, (glm::vec3*)dL_dcolor, (glm::vec3*)dL_dmeans, (glm::vec3*)dL_dsh);
@@ -664,7 +664,7 @@ void BACKWARD::preprocess(
 	const float* dL_dconic,
 	glm::vec3* dL_dmean3D,
 	float* dL_dcolor,
-	float* dL_ddepth,       // <--- [新增] 接收深度梯度
+	float* dL_ddepth,
 	float* dL_dcov3D,
 	float* dL_dsh,
 	glm::vec3* dL_dscale,
@@ -678,7 +678,6 @@ void BACKWARD::preprocess(
 	// Propagate gradients for the path of 2D conic matrix computation. 
 	// Somewhat long, thus it is its own kernel rather than being part of 
 	// "preprocess". When done, loss gradient w.r.t. 3D means has been
-	// modified and gradient w.r.t. 3D covariance matrix has been computed.	
 	computeCov2DCUDA << <(P + 255) / 256, 256 >> > (
 		P,
 		means3D,
@@ -710,13 +709,13 @@ void BACKWARD::preprocess(
 		(glm::vec3*)scales,
 		(glm::vec4*)rotations,
 		scale_modifier,
-		viewmatrix,             // <--- [新增] 必须传入 view 矩阵！
+		viewmatrix,
 		projmatrix,
 		campos,
 		(float3*)dL_dmean2D,
 		(glm::vec3*)dL_dmean3D,
 		dL_dcolor,
-		dL_ddepth,              // <--- [新增] 传入深度梯度
+		dL_ddepth,
 		dL_dcov3D,
 		dL_dsh,
 		dL_dscale,

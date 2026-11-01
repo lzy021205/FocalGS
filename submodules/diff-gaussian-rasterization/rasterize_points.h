@@ -57,8 +57,8 @@ RasterizeGaussiansBackwardCUDA(
 	const float tan_fovx, 
 	const float tan_fovy,
     const torch::Tensor& dL_dout_color,
-	const torch::Tensor& dL_dout_depth,   // <--- [新增]
-	const torch::Tensor& dL_dout_alpha,   // <--- [新增]
+	const torch::Tensor& dL_dout_depth,
+	const torch::Tensor& dL_dout_alpha,
 	const torch::Tensor& sh,
 	const int degree,
 	const torch::Tensor& campos,
@@ -66,7 +66,7 @@ RasterizeGaussiansBackwardCUDA(
 	const int R,
 	const torch::Tensor& binningBuffer,
 	const torch::Tensor& imageBuffer,
-	const torch::Tensor& alphas,          // <--- [新增] 名字匹配 .cu 中的 alphas
+	const torch::Tensor& alphas,
 	const bool debug,
   const bool use_deblur,
 	const float lens_aperture,

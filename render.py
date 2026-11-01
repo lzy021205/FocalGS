@@ -61,10 +61,8 @@ def render_set(opt, model_path, name, iteration, views, gaussians, pipeline, bac
     blur_list = [] 
     
     sharp_dict = {v.image_name: v for v in sharp_views} if sharp_views else {}
-    
-    # ==========================================================
-    # [核心修复区]：双重 JSON 读取，完美建立 (清晰名 -> 模糊路径) 的映射
-    # ==========================================================
+
+
     test_blurry_dict = {}
     if name == "test" and source_path:
         json_sharp = os.path.join(source_path, "transforms_test.json")
@@ -84,36 +82,34 @@ def render_set(opt, model_path, name, iteration, views, gaussians, pipeline, bac
 
     print("point nums:", gaussians._anchor.shape[0])
 
-    t_list = [] # 创建一个时间记录表
+    t_list = []
 
     for idx, view in enumerate(tqdm(views, desc=f"Rendering {name}")):
-    
-        # ======================== [纯渲染耗时诊断模式] ========================
-        # 1. 清空显存占用统计，准备开始计时
+
+
         torch.cuda.reset_peak_memory_stats()
         torch.cuda.synchronize()
         time1 = time()
         
-        # 2. 核心渲染过程
+
         voxel_visible_mask = prefilter_voxel(view, gaussians, pipeline, background)  
         retain_grad = (iteration < opt.update_until and iteration >= 0)
         rendering = render(view, gaussians, pipeline, background, stage="fine", 
                            visible_mask=voxel_visible_mask, retain_grad=retain_grad, 
                            force_deblur=render_blur)["render"]
         
-        # 3. 渲染结束，立即同步计时
+
         torch.cuda.synchronize()
         time2 = time()
         
-        # 4. 打印该帧的 GPU 渲染时间 (仅在前 10 帧显示，避免刷屏)
+
         if idx < 10:
             print(f"Frame {idx} Pure Render Time: {(time2 - time1) * 1000:.2f} ms")
         
         t_list.append(time2 - time1)
-        render_list.append(rendering) # 保留以便后续保存
-        # =========================================================================
+        render_list.append(rendering)
 
-        # 以下是你原本完好保留的业务逻辑，用于准备保存的图像数据
+
         if cam_type != "PanopticSports":
             original_img = view.original_image[0:3, :, :]
         else:
@@ -136,12 +132,12 @@ def render_set(opt, model_path, name, iteration, views, gaussians, pipeline, bac
                     b_img = Image.open(b_path).convert("RGB")
                     blur_list.append(TF.to_tensor(b_img).cuda())
                 except Exception as e:
-                    print(f"   [WARN] 读图失败: {e}")
+                    print(f"   [WARN] Failed to read image: {e}")
                     blur_list.append(original_img) 
             else:
                 blur_list.append(original_img)
 
-    # 循环结束后，切片抛弃前 5 帧 Warm-up，计算平均值
+
     t = np.array(t_list[5:])
     if len(t) > 0:
         fps = 1.0 / t.mean()

@@ -178,7 +178,6 @@ def read_intrinsics_text(path):
     return cameras
 
 
-
 def sort_by_image_name(image):
     #return int(image.name.split('.')[0][-2:])
     return image.name
@@ -224,7 +223,6 @@ def read_extrinsics_binary(path_to_model_file):
     return images
 
 
-
 def read_intrinsics_binary(path_to_model_file):
     """
     see: src/base/reconstruction.cc
@@ -252,7 +250,6 @@ def read_intrinsics_binary(path_to_model_file):
                                         params=np.array(params))
         assert len(cameras) == num_cameras
     return cameras
-
 
 
 def read_extrinsics_text(path):

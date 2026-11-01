@@ -51,7 +51,7 @@ def loadCam(args, id, cam_info, resolution_scale):
                   FoVx=cam_info.FovX, FoVy=cam_info.FovY, 
                   image=gt_image, gt_alpha_mask=loaded_mask,
                   image_name=cam_info.image_name, uid=id, data_device=args.data_device,time=cam_info.time,
-                  # ================= [新增：传递物理光学参数] =================
+
                   f_stop=cam_info.f_stop,
                   focal_dist_m=cam_info.focal_dist_m,
                   focal_length_mm=cam_info.focal_length_mm)

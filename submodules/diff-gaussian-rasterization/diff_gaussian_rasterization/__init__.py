@@ -88,40 +88,40 @@ class _RasterizeGaussians(torch.autograd.Function):
         if raster_settings.debug:
             cpu_args = cpu_deep_copy_tuple(args) # Copy them before they can be corrupted
             try:
-                # ?? [修改] 接住 8 个返回值，包括 alpha
+
                 num_rendered, color, depth, alpha, radii, geomBuffer, binningBuffer, imgBuffer = _C.rasterize_gaussians(*args)
             except Exception as ex:
                 torch.save(cpu_args, "snapshot_fw.dump")
                 print("\nAn error occured in forward. Please forward snapshot_fw.dump for debugging.")
                 raise ex
         else:
-            # ?? [修改] 接住 8 个返回值，包括 alpha
+
             num_rendered, color, depth, alpha, radii, geomBuffer, binningBuffer, imgBuffer = _C.rasterize_gaussians(*args)
 
         # Keep relevant tensors for backward
         ctx.raster_settings = raster_settings
         ctx.num_rendered = num_rendered
-        # ?? [修改] 把 alpha 也存起来供 backward 使用
+
         ctx.save_for_backward(colors_precomp, means3D, scales, rotations, cov3Ds_precomp, radii, sh, geomBuffer, binningBuffer, imgBuffer, alpha)
         
-        # ?? [修改] 抛出 4 个值，与外层 gaussian_renderer 对齐
+
         return color, radii, depth, alpha
 
     @staticmethod
-    # ?? [修改] 接收 4 个梯度
+
     def backward(ctx, grad_out_color, grad_out_radii, grad_out_depth, grad_out_alpha):
 
         # Restore necessary values from context
         num_rendered = ctx.num_rendered
         raster_settings = ctx.raster_settings
-        # ?? [修改] 把 alpha 取出来
+
         colors_precomp, means3D, scales, rotations, cov3Ds_precomp, radii, sh, geomBuffer, binningBuffer, imgBuffer, alpha = ctx.saved_tensors
-        # ================= [?? 救命补丁：拦截 None 梯度，防止读到内存垃圾] =================
+
         if grad_out_depth is None:
             grad_out_depth = torch.zeros((1, raster_settings.image_height, raster_settings.image_width), dtype=torch.float32, device="cuda")
         if grad_out_alpha is None:
             grad_out_alpha = torch.zeros((1, raster_settings.image_height, raster_settings.image_width), dtype=torch.float32, device="cuda")
-        # ====================================================================================
+
         # Restructure args as C++ method expects them
         args = (raster_settings.bg,
                 means3D, 
@@ -136,8 +136,8 @@ class _RasterizeGaussians(torch.autograd.Function):
                 raster_settings.tanfovx, 
                 raster_settings.tanfovy, 
                 grad_out_color, 
-                grad_out_depth,  # <--- [修改] 传入深度梯度
-                grad_out_alpha,  # <--- [修改] 传入 Alpha 梯度
+                grad_out_depth,
+                grad_out_alpha,
                 sh, 
                 raster_settings.sh_degree, 
                 raster_settings.campos,
@@ -145,7 +145,7 @@ class _RasterizeGaussians(torch.autograd.Function):
                 num_rendered,
                 binningBuffer,
                 imgBuffer,
-                alpha,           # <--- [修改] 传入 alpha 到 C++
+                alpha,
                 raster_settings.debug,
                 raster_settings.use_deblur,
                 raster_settings.lens_aperture,
@@ -263,7 +263,7 @@ class GaussianRasterizer(nn.Module):
 
         # Invoke C++/CUDA rasterization routine
         with torch.no_grad():
-            # [保留] 这里依然调用你自定义的 visible_filter
+
             radii = _C.rasterize_aussians_filter(means3D,
             scales,
             rotations,

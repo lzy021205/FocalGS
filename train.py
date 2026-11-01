@@ -41,10 +41,10 @@ from utils.image_utils import psnr
 from argparse import ArgumentParser, Namespace, SUPPRESS
 from arguments import ModelParams, PipelineParams, OptimizationParams,ModelHiddenParams
 import matplotlib.pyplot as plt
-# ================= [新增 Import] =================
+
 from utils.loss_utils import SmoothLoss
 from utils.graphics_utils import inverse_warp_images
-# =================================================
+
 
 # torch.set_num_threads(32)
 lpips_fn = lpips.LPIPS(net='vgg').to('cuda')
@@ -63,7 +63,7 @@ def get_shifted_camera(cam, trans_dist):
     import torch
     new_cam = copy.deepcopy(cam)
     new_W2C = new_cam.world_view_transform.clone()
-    new_W2C[3, 0] += trans_dist  # 沿 X 轴平移
+    new_W2C[3, 0] += trans_dist
     new_cam.world_view_transform = new_W2C
     new_cam.full_proj_transform = torch.matmul(new_W2C.unsqueeze(0), new_cam.projection_matrix.unsqueeze(0)).squeeze(0)
     new_cam.camera_center = new_cam.world_view_transform.inverse()[3, :3]
@@ -82,8 +82,8 @@ def draw_img(img, idx):
     plt.close()
 
 def show_depth(image,name):
-    import os  # 确保 os 模块可用
-    os.makedirs('test_images', exist_ok=True)  # <--- 【新增】如果文件夹不存在，就自动建一个！
+    import os
+    os.makedirs('test_images', exist_ok=True)
     depth_max = torch.max(image)
     depth_min = torch.min(image)
     image = (image - depth_min) / (depth_max - depth_min + 0.0001)
@@ -120,15 +120,14 @@ def saveRuntimeCode(dst: str) -> None:
     print('Backup Finished!')
 
 
-
 def training(dataset, hyper, opt, pipe, frames_start_end, testing_iterations, saving_iterations, checkpoint_iterations, checkpoint, debug_from, expname,args):
     # first_iter = 0
     tb_writer = prepare_output_and_logger(expname)
 
-    # [核心修改] 显式传递 use_deblur 开关
+
     gaussians = GaussianModel( hyper, opt,dataset.feat_dim, dataset.n_offsets, dataset.voxel_size, dataset.update_depth, dataset.update_init_factor, dataset.update_hierachy_factor, dataset.use_feat_bank,
                               dataset.appearance_dim, dataset.ratio, dataset.add_opacity_dist, dataset.add_cov_dist, dataset.add_color_dist,
-                              use_deblur=dataset.use_deblur) # <--- [修改点]
+                              use_deblur=dataset.use_deblur)
 
     dataset.model_path = args.model_path
     timer = Timer()
@@ -142,8 +141,6 @@ def training(dataset, hyper, opt, pipe, frames_start_end, testing_iterations, sa
                          
     if tb_writer:
         tb_writer.close()
-    
-
 
 
 def scene_reconstruction(dataset, hyper, opt,  pipe, testing_iterations, saving_iterations,
@@ -165,7 +162,7 @@ def scene_reconstruction(dataset, hyper, opt,  pipe, testing_iterations, saving_
     ema_loss_for_log = 0.0
     progress_bar = tqdm(range(first_iter, train_iter), desc="Training progress")
     first_iter += 1
-    # ================= [新增：双目 Loss 全局初始化] =================
+
     # Create tensors for binocular consistency
     train_cams = scene.getTrainCameras()
     image_height = train_cams[0].image_height
@@ -175,19 +172,19 @@ def scene_reconstruction(dataset, hyper, opt,  pipe, testing_iterations, saving_
     warp_mask = torch.ones((1, image_height, image_width), dtype=torch.float32).cuda()
 
     smooth_loss = SmoothLoss()
-    # ================================================================
-    # ================= [新增 1：焦距专属优化器初始化] =================
+
+
     focus_params = []
     for cam in scene.getTrainCameras():
         if hasattr(cam, 'learn_focal') and cam.learn_focal and cam.focus_raw is not None:
             focus_params.append(cam.focus_raw)
     
     if len(focus_params) > 0:
-        # 学习率设为 1e-2，让它能较快地在物理区间内滑动寻优
+
         optimizer_focus = torch.optim.Adam([{'params': focus_params, 'lr': 1e-2, 'name': 'focal_dist'}])
     else:
         optimizer_focus = None
-    # =================================================================
+
     bg_color = [1, 1, 1] if dataset.white_background else [0, 0, 0]
     background = torch.tensor(bg_color, dtype=torch.float32, device="cuda")
     if not viewpoint_stack and not opt.dataloader:
@@ -253,19 +250,15 @@ def scene_reconstruction(dataset, hyper, opt,  pipe, testing_iterations, saving_
         viewpoint_cam = viewpoint_cams[0]
         voxel_visible_mask = prefilter_voxel(viewpoint_cam, gaussians, pipe, background)  #
         retain_grad = (iteration < opt.update_until and iteration >= 0)
-# ================= [新增代码 1：Warm-up 策略] =================
-        # 如果开启了去模糊，且在前 3000 次迭代（预热期）
-        # 强制临时关闭去模糊功能，让 3DGS 专注于生长几何结构
-        # 这样绿叶就会尝试用很多小点去拟合，而不是依赖 GTnet
+
+
         #if dataset.use_deblur:
          #   if iteration < 3000:
           #      gaussians.use_deblur = False
            # else:
             #    gaussians.use_deblur = True
-        # ============================================================
-        
-        
-        # [核心修改 1] 训练时开启 is_training 标志 (Render 函数已自动读取 pc.get_color_mlp.training)
+
+
         render_pkg = render( viewpoint_cam, gaussians, pipe, background, iteration=iteration, stage=stage, visible_mask=voxel_visible_mask, retain_grad=retain_grad)
 
         image, depth_map, viewspace_point_tensor, visibility_filter, offset_selection_mask, scaling, opacity, neural_points=                 render_pkg["render"], render_pkg["depth_map"], render_pkg["viewspace_points"], render_pkg["visibility_filter"], render_pkg["selection_mask"],                     render_pkg["scaling"], render_pkg["neural_opacity"], render_pkg["neural_points"]
@@ -277,27 +270,23 @@ def scene_reconstruction(dataset, hyper, opt,  pipe, testing_iterations, saving_
         ssim_loss = (1.0 - ssim(image, gt_image)[0])
         
         psnr_ = psnr(image, gt_image).mean().double()
-        #[核心修改：双重惩罚机制]
+
         if base_scaling.numel() > 0:
-            # 1. 主惩罚：基础几何体积（系数大，逼迫底模极致 Sharp）
+
             base_scaling_reg = base_scaling.prod(dim=1).mean()
-            # 2. 副惩罚：最终膨胀体积（系数小，像皮筋一样防止 GTnet 梯度爆炸野蛮生长）
+
             final_scaling_reg = scaling.prod(dim=1).mean()
         else:
             base_scaling_reg = 0.0
             final_scaling_reg = 0.0
 
-        
-        # ================= [新增：Opacity Decay (透明度惩罚)] =================
-        # 利用 Loss 正则化来实现 Scaffold-GS 架构下等效的“透明度衰减”
+
         opacity_reg = 0.0
-        # 建议在 3000 步（预热结束、基础几何刚开始成型时）启动“扣血”机制
+
         if iteration > 3000 and opacity.numel() > 0:
             opacity_reg = opacity.mean()
-        # =====================================================================
 
-        # 将 opacity_reg 汇入总 Loss。
-        # 这里的 0.01 权重相当于每次给透明度施加一个温和但坚定的向下的梯度（等效于乘 0.995）
+
         loss = (1.0 - opt.lambda_dssim) * Ll1 + opt.lambda_dssim * ssim_loss + \
                0.01 * base_scaling_reg + 0* final_scaling_reg + \
                args.opacity_reg_weight * opacity_reg
@@ -310,48 +299,44 @@ def scene_reconstruction(dataset, hyper, opt,  pipe, testing_iterations, saving_
             anisotropy_ratio = max_scales / (min_scales + 1e-7)
             anisotropy_loss = torch.mean(torch.nn.functional.relu(anisotropy_ratio - 3.0))
             loss = loss + lambda_aniso * anisotropy_loss
-        
-        
-                
-# ================= [全新替换：DNGaussian 双目一致性 Loss] =================
+
+
         disparity_loss = 0.0
         
-        # 核心策略：延迟介入！前 15000 步让网络安心长结构，后面再用双目施加刚性约束！
+
         shift_cam_start = args.shift_cam_start 
         
         if args.enable_shifted_disparity_loss and iteration > shift_cam_start:
-            # 1. 随机平移相机
+
             cam_trans_dist = 0.4
             trans_dist = torch.rand(1) * cam_trans_dist
             import random
             trans_dist = (trans_dist * random.choice([-1.0, 1.0])).item()
             
-            shifted_cam = get_shifted_camera(viewpoint_cam, trans_dist) # 确保你有这个辅助函数
+            shifted_cam = get_shifted_camera(viewpoint_cam, trans_dist)
             
-            # 2. 渲染平移画面
+
             with torch.no_grad():
                 render_pkg_shifted = render(shifted_cam, gaussians, pipe, background, iteration=iteration, stage=stage, visible_mask=voxel_visible_mask)
                 shifted_image = render_pkg_shifted["render"]
-            
-            # 3. 提取深度并升维到 4D [1, 1, H, W]
-            # depth_map 出来通常是 [1, H, W]
+
+
             depth = depth_map.unsqueeze(0) 
             
-            # 4. 计算视差 (保持 4D 结构 [1, 1, H, W])
+
             focal_x = viewpoint_cam.image_width / (2.0 * math.tan(viewpoint_cam.FoVx * 0.5))
             disparity = focal_x * (-trans_dist) / (depth + 1e-5)
-            
-            # 5. 为了传给 warp 函数，把 4D 降回 3D 或者适应 warp 函数
-            # 根据我之前给你的 inverse_warp_images，它能接受 image 为 [1, 3, H, W], disparity 为 [1, 1, H, W]
+
+
             gt_image_4d = gt_image.unsqueeze(0)        # [1, 3, H, W]
             shifted_img_4d = shifted_image.unsqueeze(0)# [1, 3, H, W]
-            warp_mask_4d = warp_mask.unsqueeze(0)      # [1, 1, H, W] 假设 warp_mask 初始是 [1, H, W]
+            warp_mask_4d = warp_mask.unsqueeze(0)
             
-            # 6. 进行视差扭曲
+
             warped_image = inverse_warp_images(shifted_img_4d, disparity, row_indices, column_indices)
             shift_mask = inverse_warp_images(warp_mask_4d, disparity, row_indices, column_indices)
             
-# 7. 调用官方 SmoothLoss，并将 mask 提前乘入图像，完美适配普通 l1_loss！
+
             disparity_loss = (l1_loss(warped_image * shift_mask, gt_image_4d * shift_mask) +
                               0.05 * smooth_loss(disparity * shift_mask, gt_image_4d))
             
@@ -359,7 +344,7 @@ def scene_reconstruction(dataset, hyper, opt,  pipe, testing_iterations, saving_
             
             if iteration % 1000 == 0:
                 print(f"[Debug] Iter {iteration} | Disparity Loss: {disparity_loss.item():.4f}")
-        # ==========================================================================
+
         
         if stage == "fine" and hyper.time_smoothness_weight != 0 and not opt.hash :
             # tv_loss = 0
@@ -368,18 +353,18 @@ def scene_reconstruction(dataset, hyper, opt,  pipe, testing_iterations, saving_
 
 
         loss.backward()
-        # ================= [新增 2：物理焦距梯度接续与转换] =================
+
         if optimizer_focus is not None and hasattr(viewpoint_cam, 'learn_focal') and viewpoint_cam.learn_focal:
-            # 等待从 render_pkg 中提取未来 CUDA 返回的梯度
+
             grad_focus_from_cuda = render_pkg.get("grad_focus", None)
             if grad_focus_from_cuda is not None:
-                # 链式法则求导：d(D_focus) / d(focus_raw)
+
                 w = torch.sigmoid(viewpoint_cam.focus_raw)
                 d_focus_d_raw = (viewpoint_cam.D_max - viewpoint_cam.D_min) * w * (1.0 - w)
                 
-                # 将底层物理梯度转化为网络参数的梯度，并挂载到 autograd 引擎中
+
                 viewpoint_cam.focus_raw.grad = grad_focus_from_cuda * d_focus_d_raw
-        # ====================================================================
+
         for param in gaussians.dynamic_module.parameters():
             if param.grad is not None:
                 param.grad.nan_to_num_()
@@ -401,9 +386,9 @@ def scene_reconstruction(dataset, hyper, opt,  pipe, testing_iterations, saving_
                                           "point":f"{total_point}"})
                 progress_bar.update(10)
             
-                # ================= [新增 TensorBoard 记录：训练曲线] =================
+
                 if tb_writer:
-                    # 1. 核心 Loss 曲线
+
                     tb_writer.add_scalar('Train/Total_Loss', loss.item(), iteration)
                     tb_writer.add_scalar('Train/L1_Loss', Ll1.item(), iteration)
                     tb_writer.add_scalar('Train/SSIM_Loss', ssim_loss.item(), iteration)
@@ -433,11 +418,11 @@ def scene_reconstruction(dataset, hyper, opt,  pipe, testing_iterations, saving_
                     elif disparity_loss != 0.0:
                         tb_writer.add_scalar('Penalty/Disparity_Loss', disparity_loss, iteration)
                         
-                    # 3. 几何生长监控 (极其关键：监控是否点数爆炸)
+
                     tb_writer.add_scalar('Geometry/Anchor_Count', total_point, iteration)
                     if neural_points is not None:
                         tb_writer.add_scalar('Geometry/Neural_Gaussian_Count', neural_points.shape[0], iteration)
-                # =====================================================================
+
 
             if iteration == train_iter:
                 progress_bar.close()
@@ -453,15 +438,14 @@ def scene_reconstruction(dataset, hyper, opt,  pipe, testing_iterations, saving_
                 # add statis
                 gaussians.training_statis(  neural_points ,viewspace_point_tensor, opacity, visibility_filter, offset_selection_mask, voxel_visible_mask)
                 # densification
-                if iteration >= opt.update_from  :  # and iteration % opt.update_interval == 0 :  # 1500 开始致密化
+                if iteration >= opt.update_from  :
                     gaussians.adjust_anchor(iteration, check_interval=opt.update_interval, success_threshold=opt.success_threshold, grad_threshold=opt.densify_grad_threshold, min_opacity=opt.min_opacity)
-
 
 
             if iteration % 100 == 0 :
                 torch.cuda.empty_cache()
 
-            elif iteration == opt.update_until:  # 15000 删除缓存
+            elif iteration == opt.update_until:
                 del gaussians.opacity_accum
                 del gaussians.offset_gradient_accum
                 del gaussians.offset_denom
@@ -475,26 +459,22 @@ def scene_reconstruction(dataset, hyper, opt,  pipe, testing_iterations, saving_
                 gaussians.dy_optimizer.step()
                 gaussians.dy_optimizer.zero_grad(set_to_none = True)
                 gaussians.optimizer.zero_grad(set_to_none = True)
-                # ================= [新增 3：焦距优化器步进] =================
+
                 if optimizer_focus is not None:
                     optimizer_focus.step()
                     optimizer_focus.zero_grad(set_to_none=True)
-                # ==========================================================
+
         
         if iteration % 500 == 0:
-    # 拿到经过 exp 激活的真实物理尺度，并提取前 3 维的最大值
+
            max_scale = gaussians.get_scaling[:, :3].max().item()
            mean_scale = gaussians.get_scaling[:, :3].mean().item()
            print(f"\n[Debug] Iter {iteration} | Max Anchor Offset Bound: {max_scale:.6f} | Mean: {mean_scale:.6f}") 
            
-           # ================= [新增 TensorBoard 记录：尺度监控] =================
+
            if tb_writer:
                 tb_writer.add_scalar('Stats/Max_Anchor_Scale', max_scale, iteration)
                 tb_writer.add_scalar('Stats/Mean_Anchor_Scale', mean_scale, iteration)
-            # =====================================================================
-
-
-
 
 
 def prepare_output_and_logger(expname):
@@ -539,15 +519,15 @@ def training_report(args , gaussians, tb_writer, iteration, Ll1, loss, l1_loss, 
                 l1_test = 0.0
                 psnr_test = 0.0
                 for idx, viewpoint in enumerate(config['cameras']):
-                    voxel_visible_mask = prefilter_voxel(viewpoint, gaussians, renderArgs[0], renderArgs[1])  # 判断是否可见
+                    voxel_visible_mask = prefilter_voxel(viewpoint, gaussians, renderArgs[0], renderArgs[1])
 
-                    # 1. 先进行渲染，获取完整的打包数据 (保存为 render_result)
+
                     render_result = renderFunc(viewpoint, scene.gaussians,stage=stage, iteration = iteration, visible_mask = voxel_visible_mask, retain_grad = True, *renderArgs)
                     
-                    # 2. 提取并裁剪 RGB 图像用于算 Loss
+
                     image = torch.clamp(render_result["render"], 0.0, 1.0)
 
-                    # 3. 打印信息并提取深度图 (放在渲染之后执行！)
+
                     if config['name'] == 'test' and idx == 0: 
                         print(f"\n================ [FOV Check] ================")
                         print(f"Test Camera Name: {viewpoint.image_name}")
@@ -557,7 +537,7 @@ def training_report(args , gaussians, tb_writer, iteration, Ll1, loss, l1_loss, 
                         print(f"Test Timestamp: {viewpoint.time:.4f}")
                         print(f"=============================================\n")
                         
-                        # 从我们刚刚获取的 render_result 中提取深度
+
                         depth_map = render_result["depth_map"]
                         show_depth(depth_map, f"iter_{iteration}")
 
@@ -572,13 +552,12 @@ def training_report(args , gaussians, tb_writer, iteration, Ll1, loss, l1_loss, 
                 # print("\n[ITER {}] Evaluating {}: L1 {} PSNR {}".format(iteration, config['name'], l1_test, psnr_test))
                 logger.info("[ITER {}] Evaluating {}: L1 {} PSNR {}\n".format(iteration, config['name'], l1_test, psnr_test))
                 
-               # ================= [新增 TensorBoard 记录：验证集性能] =================
+
                 if tb_writer:
-                    # 区分这是 test 集合还是 train 集合的评测
+
                     prefix = "Test" if config['name'] == 'test' else "Train_Eval"
                     tb_writer.add_scalar(f'{prefix}/PSNR', psnr_test, iteration)
                     tb_writer.add_scalar(f'{prefix}/L1_Loss', l1_test, iteration)
-                # =====================================================================
 
 
         torch.cuda.empty_cache()
@@ -766,7 +745,6 @@ def get_logger(path):
     return logger
 
 
-
 if __name__ == "__main__":
     # Set up command line argument parser
     parser = ArgumentParser(description="Training script parameters")
@@ -793,7 +771,6 @@ if __name__ == "__main__":
     parser.add_argument("--opacity_reg_weight", type=float, default=0.01)
     parser.add_argument("--lambda_aniso", type=float, default=0.0)
     parser.add_argument("--use_learning_focus", action="store_true", default=False, help=SUPPRESS)
-
 
 
     args = parser.parse_args(sys.argv[1:])

@@ -9,7 +9,6 @@ import torch.optim.lr_scheduler
 from torch import nn
 
 
-
 def compute_plane_tv(t):
     batch_size, c, h, w = t.shape
     count_h = batch_size * c * (h - 1) * w
@@ -117,7 +116,6 @@ class TimeSmoothness(Regularizer):
             for grid_id in time_grids:
                 total += compute_plane_smoothness(grids[grid_id])
         return torch.as_tensor(total)
-
 
 
 class L1ProposalNetwork(Regularizer):

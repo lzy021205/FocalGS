@@ -94,9 +94,6 @@ class SpaceTimeHashingField(torch.nn.Module):
         return dynamic_feature, dynamic_mask
 
 
-    
-
-
     def get_params (self):
 
         parameter_list = []

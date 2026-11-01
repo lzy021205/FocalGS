@@ -15,7 +15,7 @@ import numpy as np
 from utils.graphics_utils import getWorld2View2, getProjectionMatrix
 
 class Camera(nn.Module):
-    # 【修改点 1】：在参数列表末尾加上 learn_focal 开关和焦距边界 D_min, D_max
+
     def __init__(self, colmap_id, R, T, FoVx, FoVy, image, gt_alpha_mask,
                  image_name, uid, f_stop, focal_dist_m, focal_length_mm, 
                  trans=np.array([0.0, 0.0, 0.0]), scale=1.0, data_device="cuda", time=0,
@@ -31,28 +31,27 @@ class Camera(nn.Module):
         self.image_name = image_name
         self.time = time
 
-        # ================= [严格模式：核心光学量纲换算] =================
+
         self.focal_dist_m = float(focal_dist_m)
         f_m = float(focal_length_mm) / 1000.0 
         self.lens_focal_meters = f_m
         
-        # 拆掉 1e-5 的保护！如果光圈值 f_stop 给的是 0，直接触发 ZeroDivisionError 报错！
-        self.aperture_m = f_m / float(f_stop)
-        # ================================================================
 
-        # ================= [新增：动态可学习物理焦距机制] =================
+        self.aperture_m = f_m / float(f_stop)
+
+
         self.learn_focal = learn_focal
-        self.gt_focus_dist = float(focal_dist_m) # 永远保存真实的/初始的焦距作为GT
+        self.gt_focus_dist = float(focal_dist_m)
 
         if self.learn_focal and D_min is not None and D_max is not None:
             self.D_min = float(D_min)
             self.D_max = float(D_max)
-            # 初始化一个可学习的参数。0.0 经过 sigmoid 就是 0.5，恰好在区间正中间
+
             self.focus_raw = nn.Parameter(torch.tensor([0.0], dtype=torch.float32, device="cuda"))
         else:
-            # 合成数据集模式下，不开辟内存，不进行求导
+
             self.focus_raw = None
-        # ================================================================
+
 
         try:
             self.data_device = torch.device(data_device)
@@ -89,14 +88,14 @@ class Camera(nn.Module):
         self.full_proj_transform = (self.world_view_transform.unsqueeze(0).bmm(self.projection_matrix.unsqueeze(0))).squeeze(0)
         self.camera_center = self.world_view_transform.inverse()[3, :3]
 
-    # 【修改点 2】：新增动态获取焦距的接口，供前向渲染使用
+
     def get_dynamic_focus(self):
         if self.learn_focal and self.focus_raw is not None:
-            # 将无界参数通过 Sigmoid 严格束缚在物理区间内
+
             w = torch.sigmoid(self.focus_raw)
             return self.D_min + w * (self.D_max - self.D_min)
         else:
-            # 合成数据集（或未开启学习）：直接雷打不动地返回 GT
+
             return self.gt_focus_dist
 
 

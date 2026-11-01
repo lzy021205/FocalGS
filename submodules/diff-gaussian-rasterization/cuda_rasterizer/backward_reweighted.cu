@@ -9,10 +9,6 @@
  * For inquiries contact  george.drettakis@inria.fr
  */
 
- /*
- modified by lt, reweighted det to opacity is not handled in this version
- */
-
 #include "backward.h"
 #include "auxiliary.h"
 #include <cooperative_groups.h>
@@ -587,7 +583,6 @@ void BACKWARD::preprocess(
 	// Propagate gradients for the path of 2D conic matrix computation. 
 	// Somewhat long, thus it is its own kernel rather than being part of 
 	// "preprocess". When done, loss gradient w.r.t. 3D means has been
-	// modified and gradient w.r.t. 3D covariance matrix has been computed.	
 	computeCov2DCUDA << <(P + 255) / 256, 256 >> > (
 		P,
 		means3D,

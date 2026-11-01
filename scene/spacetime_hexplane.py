@@ -90,7 +90,7 @@ def interpolate_ms_features(pts: torch.Tensor,
             feature_dim = grid[ci].shape[1]  # shape of grid[ci]: 1, out_dim, *reso
             interp_out_plane = (
                 grid_sample_wrapper(grid[ci], pts[..., coo_comb])
-                .view(-1, feature_dim) # 这个好像没必要
+                .view(-1, feature_dim)
             )
             # compute product over planes
             interp_space = interp_space * interp_out_plane
@@ -103,7 +103,7 @@ def interpolate_ms_features(pts: torch.Tensor,
 
     if concat_features:
         multi_scale_interp = torch.cat(multi_scale_interp, dim=-1)
-    return multi_scale_interp  # 分辨率之间特征concat，分辨率内特征乘
+    return multi_scale_interp
 
 
 class HexPlaneField(nn.Module):
@@ -143,7 +143,7 @@ class HexPlaneField(nn.Module):
         for res in self.multiscale_res_multipliers:
             # initialize coordinate grid
             config = self.grid_config[0].copy()
-            # Resolution fix: multi-res only on spatial planes
+            # Apply multiple resolutions only to spatial planes.
             config["resolution"] = [
                 r * res for r in config["resolution"][:3]
             ] + config["resolution"][3:]

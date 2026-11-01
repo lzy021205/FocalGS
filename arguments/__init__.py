@@ -20,7 +20,7 @@ class ParamGroup:
                 shorthand = True
                 key = key[1:]
             t = type(value)
-            value = value if not fill_none else None 
+            value = value if not fill_none else None
             if shorthand:
                 if t == bool:
                     group.add_argument("--" + key, ("-" + key[0:1]), default=value, action="store_true")
@@ -54,15 +54,15 @@ class ModelHiddenParams(ParamGroup):
                              'resolution': [64, 64, 64, 25]
                             }
         self.multires = [1, 2, 4, 8]
-      
+
         super().__init__(parser, "ModelHiddenParams")
 
-class ModelParams(ParamGroup): 
+class ModelParams(ParamGroup):
     def __init__(self, parser, sentinel=False):
         self.sh_degree = 3
         self.feat_dim = 64
         self.n_offsets = 10
-        self.voxel_size =  0.001 
+        self.voxel_size =  0.001
         self.update_depth = 3
         self.update_init_factor = 16
         self.update_hierachy_factor = 4
@@ -77,19 +77,19 @@ class ModelParams(ParamGroup):
         self.eval = False
         self.lod = 0
 
-        self.appearance_dim =  0 
+        self.appearance_dim =  0
         self.lowpoly = False
         self.ds = 1
-        self.ratio = 1 
-        self.undistorted = False 
-        
-        # [新增] 唯一的改动点：添加去模糊开关
+        self.ratio = 1
+        self.undistorted = False
+
+
         self.use_deblur = False
 
         self.add_opacity_dist = False
         self.add_cov_dist = False
         self.add_color_dist = False
-        
+
         super().__init__(parser, "Loading Parameters", sentinel)
 
     def extract(self, args):
@@ -134,9 +134,9 @@ class OptimizationParams(ParamGroup):
         self.opacity_lr = 0.02
         self.scaling_lr = 0.007
         self.rotation_lr = 0.002
-        
+
         self.mlp_opacity_lr_init = 0.002
-        self.mlp_opacity_lr_final = 0.00002  
+        self.mlp_opacity_lr_final = 0.00002
         self.mlp_opacity_lr_delay_mult = 0.01
         self.mlp_opacity_lr_max_steps = 30_000
 
@@ -144,7 +144,7 @@ class OptimizationParams(ParamGroup):
         self.mlp_cov_lr_final = 0.004
         self.mlp_cov_lr_delay_mult = 0.01
         self.mlp_cov_lr_max_steps = 30_000
-        
+
         self.mlp_offset_lr_init = 0.008
         self.mlp_offset_lr_final = 0.00005
         self.mlp_offset_lr_delay_mult = 0.01
@@ -154,7 +154,7 @@ class OptimizationParams(ParamGroup):
         self.mlp_color_lr_final = 0.00005
         self.mlp_color_lr_delay_mult = 0.01
         self.mlp_color_lr_max_steps = 30_000
-        
+
         self.mlp_featurebank_lr_init = 0.01
         self.mlp_featurebank_lr_final = 0.00001
         self.mlp_featurebank_lr_delay_mult = 0.01
@@ -167,24 +167,24 @@ class OptimizationParams(ParamGroup):
 
         self.percent_dense = 0.01
         self.lambda_dssim = 0.2
-        
+
         self.start_stat = 500
         self.update_from = 1500
         self.update_interval = 100
         self.update_until = 15_000
-        
+
         self.min_opacity = 0.005
         self.success_threshold = 0.8
         self.densify_grad_threshold = 0.0002
-# 1. 尺度正则化权重 (Scale Regularization Weight)
-        self.lambda_scale_reg = 0.001 
-        
-        # 2. 致密化间隔 (Densification Interval) - 你的代码里原本没有这个变量
+
+        self.lambda_scale_reg = 0.001
+
+
         self.densification_interval = 100
-        self.opacity_factor = 2 
-        self.cov_factor = 2 
-        self.color_factor = 2 
-        self.offset_factor = 4 
+        self.opacity_factor = 2
+        self.cov_factor = 2
+        self.color_factor = 2
+        self.offset_factor = 4
 
         self.hash_init_lr = 0.0002
         self.hash_final_lr = 0.000002

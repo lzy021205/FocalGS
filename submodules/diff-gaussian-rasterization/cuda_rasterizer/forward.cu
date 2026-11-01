@@ -222,21 +222,19 @@ __global__ void preprocessCUDA(int P, int D, int M,
 	// Compute 2D screen-space covariance matrix
 	float3 cov = computeCov2D(p_orig, focal_x, focal_y, tan_fovx, tan_fovy, cov3D, viewmatrix);
 
-	//[核心魔法：物理散焦 + 能量守恒] ============================
-	float det_orig = cov.x * cov.z - cov.y * cov.y; // 记录原始行列式用于能量守恒
+	// Preserve the original footprint for energy-conserving defocus.
+	float det_orig = cov.x * cov.z - cov.y * cov.y;
 	
 	if (use_deblur && lens_focus_depth > 0.0f) {
 		float z = p_view.z; 
-		
-		// 1. 计算弥散圆 (Circle of Confusion) 在像素坐标下的半径
-		// 公式: r_coc = (A / 2) * (|z - focus_depth| / (z * focus_depth)) * focal_pixels
+
+		// Thin-lens circle of confusion in pixel units.
 		float coc_radius = 0.5f * lens_aperture * lens_focal_pixels * fabsf(z - lens_focus_depth) / (z * lens_focus_depth + 1e-7f);
-		
-		// 2. 将弥散圆转换为高斯方差的增量 (假设 coc_radius 对应 2 sigma)
+
+		// Approximate the disk blur with an isotropic Gaussian.
 		float blur_var = (coc_radius * coc_radius) * 0.36067376f;
     //float blur_var = (coc_radius * coc_radius);
-		
-		// 3. 将各向同性的模糊方差加到 2D 协方差对角线上
+
 		cov.x += blur_var;
 		cov.z += blur_var;
 	}
@@ -259,13 +257,11 @@ __global__ void preprocessCUDA(int P, int D, int M,
 	if ((rect_max.x - rect_min.x) * (rect_max.y - rect_min.y) == 0)
 		return;
 
-	// 4. 计算能量守恒的 Opacity (积分不变定理)
 	float final_opacity = opacities[idx];
 	if (use_deblur && det_orig > 0.0f) {
-		// 行列式代表协方差面积，面积变大，透明度必须按根号比例缩小
+		// Compensate opacity for the enlarged Gaussian footprint.
 		final_opacity = final_opacity * sqrt(det_orig / det);
 	}
-	//==========================================================
 	// If colors have been precomputed, use them, otherwise convert
 	// spherical harmonics coefficients to RGB color.
 	if (colors_precomp == nullptr)
@@ -283,7 +279,6 @@ __global__ void preprocessCUDA(int P, int D, int M,
 	// Inverse 2D covariance and opacity neatly pack into one float4
 	conic_opacity[idx] = { conic.x, conic.y, conic.z, final_opacity};
 
-	// modified by lt
 	// float det_bias = ((cov.x+0.3) * (cov.z+0.3) - cov.y * cov.y);
 	// conic_opacity[idx] = { conic.x, conic.y, conic.z, opacities[idx]*sqrt(det/det_bias)};
 	
@@ -379,13 +374,13 @@ renderCUDA(
 	int W, int H,
 	const float2* __restrict__ points_xy_image,
 	const float* __restrict__ features,
-	const float* __restrict__ depths,       // [新增] 1. 传入的每个高斯的深度 z_i
+	const float* __restrict__ depths,
 	const float4* __restrict__ conic_opacity,
 	float* __restrict__ out_alpha,
 	uint32_t* __restrict__ n_contrib,
 	const float* __restrict__ bg_color,
 	float* __restrict__ out_color,
-	float* __restrict__ out_depth)          // [新增] 2. 最终输出的期望深度 D
+	float* __restrict__ out_depth)
 {
 	// Identify current tile and associated min/max pixel range.
 	auto block = cg::this_thread_block();
@@ -417,7 +412,7 @@ renderCUDA(
 	uint32_t last_contributor = 0;
 	float C[CHANNELS] = { 0 };
   float weight = 0;
-	float D = 0;                            // [新增] 3. 初始化累加深度变量 D
+	float D = 0;
 
 	// Iterate over batches until all done or range is complete
 	for (int i = 0; i < rounds; i++, toDo -= BLOCK_SIZE)
@@ -468,7 +463,7 @@ renderCUDA(
 			for (int ch = 0; ch < CHANNELS; ch++)
 				C[ch] += features[collected_id[j] * CHANNELS + ch] * alpha * T;
 			
-			// [新增] 4. 执行深度体积积分: D = \sum z_i * alpha_i * T_i
+
       weight += alpha * T;
 			D += depths[collected_id[j]] * alpha * T; 
 
@@ -488,7 +483,7 @@ renderCUDA(
 		for (int ch = 0; ch < CHANNELS; ch++)
 			out_color[ch * H * W + pix_id] = C[ch] + T * bg_color[ch];
 			
-		// [新增] 5. 将计算好的深度值写入显存输出数组
+
     out_alpha[pix_id] = weight;
 		out_depth[pix_id] = D;
 	}
@@ -501,13 +496,13 @@ void FORWARD::render(
 	int W, int H,
 	const float2* means2D,
 	const float* colors,
-	const float* depths,          // [必须补上] 接收 depths
+	const float* depths,
 	const float4* conic_opacity,
 	float* out_alpha,
 	uint32_t* n_contrib,
 	const float* bg_color,
 	float* out_color,
-	float* out_depth)             // [必须补上] 接收 out_depth
+	float* out_depth)
 {
 	renderCUDA<NUM_CHANNELS> << <grid, block >> > (
 		ranges,
@@ -515,13 +510,13 @@ void FORWARD::render(
 		W, H,
 		means2D,
 		colors,
-		depths,                   // [必须补上] 传给 renderCUDA
+		depths,
 		conic_opacity,
 		out_alpha,
 		n_contrib,
 		bg_color,
 		out_color,
-		out_depth);               // [必须补上] 传给 renderCUDA
+		out_depth);
 }
 
 void FORWARD::preprocess(int P, int D, int M,

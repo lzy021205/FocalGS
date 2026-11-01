@@ -78,7 +78,7 @@ def _ssim(img1, img2, window, window_size, channel, size_average=True):
     else:
         return ssim_map.mean(1).mean(1).mean(1),ssim_map
 
-# 确保你的 utils/loss_utils.py 里是这段原汁原味的代码
+
 class SmoothLoss(nn.Module):
     def __init__(self):
         super(SmoothLoss, self).__init__()

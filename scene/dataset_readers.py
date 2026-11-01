@@ -20,9 +20,7 @@ import sqlite3
 import shutil     
 import open3d as o3d
 
-# =========================================================================
-# 【修复 1】：将矩阵转四元数的洗白函数提取到全局，供所有读取器共享！
-# =========================================================================
+
 def rotmat2qvec(R):
     R00, R01, R02, R10, R11, R12, R20, R21, R22 = R.flat
     K = np.array([
@@ -48,11 +46,11 @@ class CameraInfo(NamedTuple):
     height: int
     time : float
     mask: np.array
-    # ================= [新增：物理光学参数] =================
+
     f_stop: float
     focal_dist_m: float
     focal_length_mm: float
-    # ======================================================
+
 
 class SceneInfo(NamedTuple):
     point_cloud: BasicPointCloud
@@ -96,29 +94,26 @@ def storePly(path, xyz, rgb):
     ply_data.write(path)
 
 
-# =========================================================================
-# 【Blender 原版】：作为对照组保持不变
-# =========================================================================
 def auto_run_colmap(path):
     os.environ["QT_QPA_PLATFORM"] = "offscreen"
     sparse_dir = os.path.join(path, "colmap_sparse", "0")
     if os.path.exists(os.path.join(sparse_dir, "points3D.bin")):
-        print("[Auto-COLMAP] 检测到已存在 points3D.bin，跳过 COLMAP 重建。")
+        print("[Auto-COLMAP] Found points3D.bin; skipping reconstruction.")
         return
 
-    print("[Auto-COLMAP] 未检测到初始点云，开始自动化 COLMAP 特征提取与已知位姿三角化...")
+    print("[Auto-COLMAP] Building the sparse initialization from known poses...")
     db_path = os.path.join(path, "database.db")
     if os.path.exists(db_path): os.remove(db_path)
     if os.path.exists(sparse_dir): shutil.rmtree(sparse_dir)
     os.makedirs(sparse_dir, exist_ok=True)
 
     try:
-        print("[Auto-COLMAP] Step 1/4: 提取图像特征...")
+        print("[Auto-COLMAP] Step 1/4: Extracting image features...")
         subprocess.run(["colmap", "feature_extractor", "--database_path", "database.db", "--image_path", "images", "--ImageReader.single_camera", "0"], cwd=path, check=True, stdout=subprocess.DEVNULL)
-        print("[Auto-COLMAP] Step 2/4: 穷举特征匹配...")
+        print("[Auto-COLMAP] Step 2/4: Matching image features...")
         subprocess.run(["colmap", "exhaustive_matcher", "--database_path", "database.db"], cwd=path, check=True, stdout=subprocess.DEVNULL)
 
-        print("[Auto-COLMAP] Step 3/4: 读取数据库同步真实 ID...")
+        print("[Auto-COLMAP] Step 3/4: Reading registered image IDs...")
         json_path = os.path.join(path, "transforms_train.json")
         with open(json_path, 'r') as f: data = json.load(f)
         
@@ -152,7 +147,7 @@ def auto_run_colmap(path):
             c2w[0:3, 1:3] *= -1
             w2c = np.linalg.inv(c2w)
             
-            # 使用全局的 rotmat2qvec
+
             qvec = rotmat2qvec(w2c[:3, :3])
             T = w2c[:3, 3]
             
@@ -161,11 +156,11 @@ def auto_run_colmap(path):
         cam_f.close()
         img_f.close()
 
-        print("[Auto-COLMAP] Step 4/4: 根据已知 JSON 位姿进行点云三角化...")
+        print("[Auto-COLMAP] Step 4/4: Triangulating points from the JSON poses...")
         subprocess.run(["colmap", "point_triangulator", "--database_path", "database.db", "--image_path", "images", "--input_path", "colmap_text", "--output_path", "colmap_sparse/0"], cwd=path, check=True, stdout=subprocess.DEVNULL)
-        print("[Auto-COLMAP] 完美收工！初始点云已就绪。\n")
+        print("[Auto-COLMAP] Sparse initialization is ready.\n")
     except subprocess.CalledProcessError as e:
-        print(f"\n[Auto-COLMAP ERROR] COLMAP 进程执行失败！请检查报错信息: {e}"); sys.exit(1)
+        print(f"\n[Auto-COLMAP ERROR] COLMAP failed: {e}"); sys.exit(1)
 
 
 def readBlenderWithColmapCloud(path, white_background, eval, extension=".png"):
@@ -323,11 +318,6 @@ def readBlenderWithColmapCloud(path, white_background, eval, extension=".png"):
     return SceneInfo(point_cloud=pcd, train_cameras=train_cam_infos, test_cameras=test_cam_infos, video_cameras=train_cam_infos, nerf_normalization=nerf_normalization, ply_path=final_ply_path, maxtime=1.0)
 
 
-# =========================================================================
-# 【Colmap 新版】：包含四元数洗白与智能断点续传！
-# =========================================================================
-# Replace ONLY the auto_run_multifocal_colmap and readColmapSceneInfo functions
-
 def auto_run_multifocal_colmap(path, eval_mode=False):
     os.environ["QT_QPA_PLATFORM"] = "offscreen"
     sparse_dir = os.path.join(path, "sparse", "0")
@@ -342,12 +332,12 @@ def auto_run_multifocal_colmap(path, eval_mode=False):
 
     try:
         if not os.path.exists(db_path):
-            # ======================== [新增开始：白名单过滤] ========================
+
             json_path = os.path.join(path, "transforms_train.json")
             with open(json_path, 'r', encoding='utf-8') as f:
                 train_data = json.load(f)
             
-            # 生成临时名单文件，只包含模糊图
+
             list_file = os.path.join(path, "colmap_image_list.txt")
             with open(list_file, 'w') as f:
                 for frame in train_data["frames"]:
@@ -360,7 +350,7 @@ def auto_run_multifocal_colmap(path, eval_mode=False):
                 "colmap", "feature_extractor", 
                 "--database_path", "database.db", 
                 "--image_path", "images", 
-                "--image_list_path", "colmap_image_list.txt", # <--- 灵魂参数
+                "--image_list_path", "colmap_image_list.txt",
                 "--ImageReader.single_camera", "0", 
                 "--SiftExtraction.use_gpu", "1"
             ], cwd=path, check=True)
@@ -428,7 +418,7 @@ def auto_run_multifocal_colmap(path, eval_mode=False):
 def readColmapSceneInfo(path, images, eval, lod, frames_start_end=[0,300], llffhold=8):
     print("Loading Scene: Strict 3-Way Splitting (Train Blur, Test Sharp, Train Sharp)...")
     
-    # 触发 COLMAP 建图 (仅使用模糊训练图)
+
     auto_run_multifocal_colmap(path, eval_mode=eval)
     
     def load_json(filename):
@@ -437,7 +427,7 @@ def readColmapSceneInfo(path, images, eval, lod, frames_start_end=[0,300], llffh
             with open(j_path, 'r', encoding='utf-8') as f: return json.load(f)
         return None
 
-    # 读取全部 3 个 JSON
+
     train_data = load_json("transforms_train.json")
     test_data = load_json("transforms_test.json")
     train_sharp_data = load_json("transforms_train_sharp.json")
@@ -445,23 +435,21 @@ def readColmapSceneInfo(path, images, eval, lod, frames_start_end=[0,300], llffh
     if not train_data:
         raise FileNotFoundError("Missing transforms_train.json! Please use the new dataset script.")
 
-    # 计算全局 FOV 用于 time_norm
+
     all_fovs = []
     for d in [train_data, test_data, train_sharp_data]:
         if d: all_fovs.extend([f.get("camera_angle_x", 0.7) for f in d.get("frames", [])])
     max_fov, min_fov = (max(all_fovs), min(all_fovs)) if all_fovs else (1.0, 0.1)
 
     reading_dir = "images" if images is None else images
-    
-    # ======================== [核心修改 1：全局焦距提取] ========================
-    # 计算全局 Focal Length 用于 time_norm
+
+
     all_focals = []
     for d in [train_data, test_data, train_sharp_data]:
         if d: all_focals.extend([f.get("focal_length_mm", 50.0) for f in d.get("frames", [])])
     max_focal, min_focal = (max(all_focals), min(all_focals)) if all_focals else (50.0, 50.0)
-    # ============================================================================
 
-    # 核心闭包解析函数
+
     def parse_cameras(data_dict, uid_offset=0):
         cam_infos = []
         if not data_dict: return cam_infos
@@ -473,16 +461,15 @@ def readColmapSceneInfo(path, images, eval, lod, frames_start_end=[0,300], llffh
             image_path = os.path.join(path, reading_dir, img_name)
             if not os.path.exists(image_path): continue
             
-            # 1. 【补上关键行】：打开图片文件
+
             image = Image.open(image_path)
             width, height = image.size
             
-            # ================= [彻底补齐丢失的 FOV 计算] =================
+
             FovX = frame.get("camera_angle_x", 0.7)
             FovY = focal2fov(fov2focal(FovX, width), height)
-            # ============================================================
 
-            # 3. 处理位姿矩阵
+
             c2w = np.array(frame["transform_matrix"])
             c2w[:3, 0] /= np.linalg.norm(c2w[:3, 0])
             c2w[:3, 1] /= np.linalg.norm(c2w[:3, 1])
@@ -494,8 +481,7 @@ def readColmapSceneInfo(path, images, eval, lod, frames_start_end=[0,300], llffh
             R = np.transpose(qvec2rotmat(qvec))
             T = w2c[:3, 3]
 
-            # ======================== [核心修改 2：物理焦距映射] ========================
-            # 4. 计算 norm_time (基于对数焦距流形)
+
             current_focal = frame.get("focal_length_mm", 50.0)
             
             if (max_focal - min_focal) > 1e-4:
@@ -503,25 +489,24 @@ def readColmapSceneInfo(path, images, eval, lod, frames_start_end=[0,300], llffh
                 log_min = np.log(max(min_focal, 1e-6))
                 log_max = np.log(max(max_focal, 1e-6))
                 
-                # 正向映射：焦距越大（长焦），norm_time 越接近 1
+
                 norm_time = float(np.clip((log_cur - log_min) / (log_max - log_min), 0.0, 1.0))
             else:
                 norm_time = 0.0
-            # ============================================================================
 
-            # 5. 处理图像背景并组装 CameraInfo
+
             im_data = np.array(image.convert("RGBA")) / 255.0
             bg = np.array([0, 0, 0])
             arr = im_data[:,:,:3] * im_data[:, :, 3:4] + bg * (1 - im_data[:, :, 3:4])
             image_pil = Image.fromarray(np.array(arr*255.0, dtype=np.uint8), "RGB")
             
-            if idx == 0:  # 只打印第一张图，避免刷屏
+            if idx == 0:
               print(f"\n[Debug Camera 0] Image: {img_name}")
               print(f"  - Image Size: {width} x {height}")
               print(f"  - Focal Length (mm) from JSON: {current_focal}")
               print(f"  - Calculated FovX: {FovX:.4f} rad ({(FovX * 180 / np.pi):.2f} deg)")
               print(f"  - Calculated FovY: {FovY:.4f} rad ({(FovY * 180 / np.pi):.2f} deg)")
-    # 反推一下代码算出的等效像素焦距 fx
+
               fx_calc = width / (2 * math.tan(FovX / 2))
               print(f"  - Reverse-calculated fx (pixels): {fx_calc:.2f}")
             
@@ -534,14 +519,14 @@ def readColmapSceneInfo(path, images, eval, lod, frames_start_end=[0,300], llffh
                                         focal_length_mm=frame.get("focal_length_mm", 50.0)))
         return sorted(cam_infos, key=lambda x: x.image_name)
 
-    # 独立装载三个数据集！
+
     train_cam_infos = parse_cameras(train_data, uid_offset=0)
     test_cam_infos = parse_cameras(test_data, uid_offset=len(train_cam_infos))
     train_sharp_cam_infos = parse_cameras(train_sharp_data, uid_offset=len(train_cam_infos) + len(test_cam_infos))
 
     print(f"[Dataset Loaded] Train(Blurry)={len(train_cam_infos)} | Test(Sharp)={len(test_cam_infos)} | Train-Eval(Sharp)={len(train_sharp_cam_infos)}")
 
-    # 场景归一化只能拿训练集来算
+
     nerf_normalization = getNerfppNorm(train_cam_infos)
 
     try:
@@ -553,21 +538,21 @@ def readColmapSceneInfo(path, images, eval, lod, frames_start_end=[0,300], llffh
     storePly(ply_path, xyz, rgb)
     pcd = BasicPointCloud(points=xyz, colors=rgb / 255.0, normals=np.zeros_like(xyz))
 
-    # 神之一手：把 train_sharp_cam_infos 塞进 video_cameras 传出去
+
     return SceneInfo(point_cloud=pcd, 
-                     train_cameras=train_cam_infos,       # <--- 对应你的情况 1 (训练)
-                     test_cameras=test_cam_infos,         # <--- 对应你的情况 2 (推理泛化)
-                     video_cameras=train_sharp_cam_infos, # <--- 对应你的情况 3 (推理本征解耦)
+                     train_cameras=train_cam_infos,
+                     test_cameras=test_cam_infos,
+                     video_cameras=train_sharp_cam_infos,
                      nerf_normalization=nerf_normalization, 
                      ply_path=ply_path, 
                      maxtime=1.0)
 
-# =========================================================================
+
 # [Pure Colmap Version]: No JSON, extracts poses and time from cameras.bin
-# =========================================================================
-# =========================================================================
+
+
 # [Pure Colmap Version]: No JSON, extracts poses and time from cameras.bin
-# =========================================================================
+
 def readPureColmapSceneInfo(path, images, eval, lod, frames_start_end=[0,300], llffhold=8):
     print("Loading Scene: Pure COLMAP mode (Extracting poses and focal lengths directly from binaries)...")
     
@@ -585,7 +570,7 @@ def readPureColmapSceneInfo(path, images, eval, lod, frames_start_end=[0,300], l
     reading_dir = "images" if images is None else images
     extr_list = cam_extrinsics.values() if isinstance(cam_extrinsics, dict) else cam_extrinsics
 
-    # 提取全局 FOV 用作时间映射
+
     all_fovs = []
     for extr in extr_list:
         intr = cam_intrinsics[extr.camera_id] if isinstance(cam_intrinsics, dict) else next(i for i in cam_intrinsics if i.id == extr.camera_id)
@@ -599,32 +584,27 @@ def readPureColmapSceneInfo(path, images, eval, lod, frames_start_end=[0,300], l
         width = intr.width
         uid = intr.id
 
-        # =====================================================================
-        # [双保险净化]：绝对纯净的原生 COLMAP 坐标 + 强制矩阵归一化洗白
-        # =====================================================================
+
         R_raw = qvec2rotmat(extr.qvec)
         T_raw = np.array(extr.tvec)
 
-        # 1. 组装 W2C 并求逆得到 C2W
+
         w2c_raw = np.eye(4)
         w2c_raw[:3, :3] = R_raw
         w2c_raw[:3, 3] = T_raw
         c2w = np.linalg.inv(w2c_raw)
 
-        # 2. 强制归一化 C2W 的前三列（消除任何潜在的极微小浮点缩放误差）
+
         c2w[:3, 0] /= np.linalg.norm(c2w[:3, 0])
         c2w[:3, 1] /= np.linalg.norm(c2w[:3, 1])
         c2w[:3, 2] /= np.linalg.norm(c2w[:3, 2])
 
-        # 3. 注意：这里绝对不能加 c2w[0:3, 1:3] *= -1 ！保持 OpenCV 坐标系原样！
 
-        # 4. 重新转回 W2C，并走一遍全局四元数机制，确保矩阵绝对正交
         w2c_clean = np.linalg.inv(c2w)
         qvec_clean = rotmat2qvec(w2c_clean[:3, :3])
         R = np.transpose(qvec2rotmat(qvec_clean))
         T = w2c_clean[:3, 3]
-        # =====================================================================
-        # =====================================================================
+
 
         FovX = focal2fov(intr.params[0], width)
         FovY = focal2fov(intr.params[1] if intr.model == "PINHOLE" else intr.params[0], height)
@@ -640,9 +620,9 @@ def readPureColmapSceneInfo(path, images, eval, lod, frames_start_end=[0,300], l
         image_path = os.path.join(path, reading_dir, os.path.basename(extr.name))
         if not os.path.exists(image_path): continue
             
-        # ====== 就是漏了这一行！======
+
         image_name = os.path.basename(image_path).split(".")[0]
-        # =============================
+
         image = Image.open(image_path)
         im_data = np.array(image.convert("RGBA")) / 255.0
         bg = np.array([0, 0, 0])
@@ -692,10 +672,7 @@ def readPureColmapSceneInfo(path, images, eval, lod, frames_start_end=[0,300], l
     return SceneInfo(point_cloud=pcd, train_cameras=train_cam_infos, test_cameras=test_cam_infos, video_cameras=train_cam_infos, nerf_normalization=nerf_normalization, ply_path=os.path.join(path, "points3d.ply"), maxtime=1.0)
 
 def readBlenderSceneInfo(path, white_background, eval):
-    """
-    加载 Blender/JSON 格式数据，并执行核心的 [焦距 -> 时间] 映射。
-    [修正] image 保持为 PIL Image 格式，防止 camera_utils 报错。
-    """
+    """Load Blender/JSON data and map focal length to the conditioning coordinate."""
     print("Loading Blender Scene with Global Zoom-Time Mapping...")
     
     def load_json_data(filename):
@@ -704,7 +681,7 @@ def readBlenderSceneInfo(path, white_background, eval):
             with open(json_path, 'r') as f: return json.load(f)
         return None
 
-    # 加载 JSON
+
     train_content = load_json_data("transforms_train.json")
     test_content = load_json_data("transforms_test.json")
     
@@ -716,7 +693,7 @@ def readBlenderSceneInfo(path, white_background, eval):
     train_frames = train_content["frames"]
     test_frames = test_content["frames"] if test_content else []
 
-    # 1. 收集所有焦距 (FOV) 以计算全局范围
+
     all_fovs = []
     def collect_fovs(frames, defaults):
         for frame in frames: 
@@ -729,7 +706,7 @@ def readBlenderSceneInfo(path, white_background, eval):
         collect_fovs(test_frames, test_content)
         
     if not all_fovs:
-        # Fallback: 如果 json 里没有 fov，可能需要手动指定默认值
+
         print("[Warning] No camera_angle_x found, using default range.")
         max_fov, min_fov = 1.0, 0.1
     else:
@@ -741,7 +718,7 @@ def readBlenderSceneInfo(path, white_background, eval):
         cam_infos = []
         for idx, frame in enumerate(frames):
             cam_name = os.path.join(path, frame["file_path"])
-            # 处理扩展名
+
             if not os.path.exists(cam_name):
                 if os.path.exists(cam_name + ".png"): cam_name += ".png"
                 elif os.path.exists(cam_name + ".jpg"): cam_name += ".jpg"
@@ -750,13 +727,13 @@ def readBlenderSceneInfo(path, white_background, eval):
                 print(f"Warning: Image {cam_name} not found, skipping.")
                 continue
 
-            # 读取位姿
+
             c2w = np.array(frame["transform_matrix"])
             c2w[:3, 1:3] *= -1 # OpenGL -> OpenCV
             w2c = np.linalg.inv(c2w)
             R, T = np.transpose(w2c[:3,:3]), w2c[:3, 3]
 
-            # 2. 计算归一化时间 (Norm Time)
+
             current_fov = frame.get("camera_angle_x", defaults.get("camera_angle_x"))
             
             log_cur = np.log(max(current_fov, 1e-6))
@@ -770,24 +747,23 @@ def readBlenderSceneInfo(path, white_background, eval):
                 
             norm_time = float(np.clip(norm_time, 0.0, 1.0))
 
-            # 读取图像
+
             image_path = cam_name
             image_name = Path(cam_name).stem
             image = Image.open(image_path)
 
-            # 处理背景
+
             im_data = np.array(image.convert("RGBA"))
             bg = np.array([1,1,1]) if white_background else np.array([0, 0, 0])
             norm_data = im_data / 255.0
             arr = norm_data[:,:,:3] * norm_data[:, :, 3:4] + bg * (1 - norm_data[:, :, 3:4])
             image_pil = Image.fromarray(np.array(arr*255.0, dtype=np.byte), "RGB")
 
-            # 计算 FovX, FovY
+
             FovX = current_fov
             FovY = focal2fov(fov2focal(FovX, image_pil.size[0]), image_pil.size[1])
 
-            # [关键修正] 这里必须传递 PIL Image 对象，不能转 Tensor！
-            # utils/camera_utils.py 需要调用 image.size
+
             cam_infos.append(CameraInfo(uid=idx, R=R, T=T, FovY=FovY, FovX=FovX, image=image_pil,
                                         image_path=image_path, image_name=image_name, width=image_pil.size[0], height=image_pil.size[1],
                                         time=norm_time, mask=None))
@@ -797,7 +773,7 @@ def readBlenderSceneInfo(path, white_background, eval):
     train_cam_infos = parse_cameras(train_frames, train_content)
     test_cam_infos = parse_cameras(test_frames, test_content) if test_frames else []
 
-    # 3. 场景归一化
+
     print("Computing Scene Normalization based on TRAIN data...")
     train_cam_centers = []
     for info in train_cam_infos:
@@ -826,7 +802,7 @@ def readBlenderSceneInfo(path, white_background, eval):
     train_cam_infos = update_camera_list(train_cam_infos)
     test_cam_infos = update_camera_list(test_cam_infos)
 
-    # 4. 生成随机初始化点云
+
     nerf_normalization = getNerfppNorm(train_cam_infos)
     print("Generating Centered Frustum Point Cloud...")
     
@@ -841,7 +817,7 @@ def readBlenderSceneInfo(path, white_background, eval):
     ply_path = os.path.join(path, "points3d_centered.ply")
     if not os.path.exists(ply_path): 
         try:
-            # 简单的 PLY 保存实现，以防 utils 中没有
+
             storePly(ply_path, pcd.points, pcd.colors * 255.0)
         except:
             pass

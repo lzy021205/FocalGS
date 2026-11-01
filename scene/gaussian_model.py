@@ -21,7 +21,7 @@ from scene.spacetime_hash import SpaceTimeHashingField
 from scipy.spatial import KDTree
 from scene.spacetime_hexplane import HexPlaneField
 from scene.regulation import compute_plane_smoothness
-# [新增] 引入去模糊网络
+
 from scene.blur_kernel import GTnet
 
 class GaussianModel:
@@ -53,7 +53,7 @@ class GaussianModel:
                  add_opacity_dist : bool = False,
                  add_cov_dist : bool = False,
                  add_color_dist : bool = False,
-                 use_deblur : bool = True,  # [新增] 去模糊开关
+                 use_deblur : bool = True,
                  ):
 
         self.feat_dim = feat_dim 
@@ -119,10 +119,9 @@ class GaussianModel:
                 nn.Softmax(dim=1)
         ).cuda()
 
-        # [新增] 时间 Embedding (桥梁)
-        self.time_embedding = torch.nn.Embedding(300, 32).cuda() 
 
-        
+        self.time_embedding = torch.nn.Embedding(300, 32).cuda()
+
 
         self.opacity_dist_dim = 1 if self.add_opacity_dist else 0
         self.mlp_opacity = nn.Sequential(
@@ -208,12 +207,12 @@ class GaussianModel:
         return (
             self._anchor,
             self._offset,
-            self._anchor_feat, # 注意: ZoomDyGS用的是_anchor_feat而不是_local
+            self._anchor_feat,
             self._scaling,
             self._rotation,
             self._opacity,
             self.max_radii2D,
-            self.offset_denom, # ZoomDyGS使用 offset_denom
+            self.offset_denom,
             self.optimizer.state_dict(),
             self.spatial_lr_scale,
         )
@@ -399,7 +398,7 @@ class GaussianModel:
                 {'params': [self._scaling], 'lr': training_args.scaling_lr, "name": "scaling"},
                 {'params': [self._rotation], 'lr': training_args.rotation_lr, "name": "rotation"},
 
-                # [新增] Time Embedding 优化
+
                 {'params': self.time_embedding.parameters(), 'lr': 0.002 , "name": "time_embedding"},
 
                 {'params': self.mlp_offset.parameters(), 'lr': training_args.mlp_offset_lr_init, "name": "mlp_offset"},
@@ -502,9 +501,7 @@ class GaussianModel:
         self.dynamic_module = SpaceTimeHashingField ( self.get_xyz_bound()[0] , self.get_xyz_bound()[1] , training_args.hashmap_size,
         training_args.activation , training_args.n_levels , training_args.n_features_per_level, training_args.base_resolution ,
         training_args.n_neurons , self.feat_dim)
-        self.dy_optimizer = torch.optim.Adam (  list(self.dynamic_module.get_params()) , lr = 0.0  )  
-
-
+        self.dy_optimizer = torch.optim.Adam (  list(self.dynamic_module.get_params()) , lr = 0.0  )
 
 
     def update_learning_rate(self, iteration):
@@ -671,7 +668,7 @@ class GaussianModel:
     def cat_tensors_to_optimizer(self, tensors_dict):
         optimizable_tensors = {}
         for group in self.optimizer.param_groups:
-            # [新增] 忽略 GTnet 和 Embedding 等非高斯参数
+
             if  'mlp' in group['name'] or \
                  'conv' in group['name'] or \
                  'feat_base' in group['name'] or \
@@ -696,7 +693,7 @@ class GaussianModel:
 
         return optimizable_tensors
     
-    # [重要] 保护 GTnet 参数
+
     def _prune_anchor_optimizer(self, mask):
         optimizable_tensors = {}
         for group in self.optimizer.param_groups:
@@ -753,7 +750,7 @@ class GaussianModel:
         temp_opacity[temp_opacity<0] = 0
         
         temp_opacity = temp_opacity.view([-1, self.n_offsets])
-        self.opacity_accum[anchor_visible_mask] += temp_opacity.sum(dim=1, keepdim=True)  # anchor 将其10个神经高斯的透明度累计
+        self.opacity_accum[anchor_visible_mask] += temp_opacity.sum(dim=1, keepdim=True)
         # self.opacity_max[anchor_visible_mask] = torch.max(self.opacity_max[anchor_visible_mask], temp_opacity.sum(dim=1, keepdim=True))
         # update anchor visiting statis
         self.anchor_demon[anchor_visible_mask] += 1
@@ -761,17 +758,15 @@ class GaussianModel:
         # update neural gaussian statis
         anchor_visible_mask = anchor_visible_mask.unsqueeze(dim=1).repeat([1, self.n_offsets]).view(-1)
         combined_mask = torch.zeros_like(self.offset_gradient_accum, dtype=torch.bool).squeeze(dim=1) # [10*N]
-        combined_mask[anchor_visible_mask] = offset_selection_mask  # anchor 相机可见的情况下，neural point 也可见 opacity大于0 的mask
+        combined_mask[anchor_visible_mask] = offset_selection_mask
         temp_mask = combined_mask.clone()
-        combined_mask[temp_mask] = update_filter   # anchor 可见的情况下，neural point 也可见，radii大于0的mask
+        combined_mask[temp_mask] = update_filter
         
         grad_norm = torch.norm(viewspace_point_tensor.grad[update_filter,:2], dim=-1, keepdim=True)
         self.offset_gradient_accum[combined_mask] += grad_norm   #   [N*10,1]
         self.offset_denom[combined_mask] += 1   #   [N*10,1]
 
 
-
-        # 最大梯度的 neural gs
         grad_mask = (self.grad_max[combined_mask] < grad_norm).squeeze(1)
         temp_mask = torch.zeros_like(self.offset_gradient_accum, dtype=torch.bool).squeeze(dim=1) # [10*N]
         temp_mask[combined_mask] = grad_mask
@@ -784,28 +779,28 @@ class GaussianModel:
         ## 
         init_length = self.get_anchor.shape[0]*self.n_offsets
 
-        for i in range(self.update_depth):  # 划分三层
+        for i in range(self.update_depth):
             # update threshold
             cur_threshold = threshold * ((self.update_hierachy_factor//2)**i)  # update_hierachy_factor = 4
             # mask from grad threshold
             candidate_mask = ( grads >= cur_threshold )
-            candidate_mask = torch.logical_and(candidate_mask, offset_mask)  # grid 大于某个阈值，并且可见次数也大于某个阈值
+            candidate_mask = torch.logical_and(candidate_mask, offset_mask)
             
-            # random pick  ，均值为0、方差为1的正态分布随机数
-            rand_mask = torch.rand_like(candidate_mask.float())>(0.5**(i+1))  # 随机选择一些点不进行增长
+
+            rand_mask = torch.rand_like(candidate_mask.float())>(0.5**(i+1))
             rand_mask = rand_mask.cuda()
             candidate_mask = torch.logical_and(candidate_mask, rand_mask)
             
-            length_inc = self.get_anchor.shape[0]*self.n_offsets - init_length  #  增长的长度
+            length_inc = self.get_anchor.shape[0]*self.n_offsets - init_length
             if length_inc == 0:
                 if i > 0:
                     continue
             else:
-                candidate_mask = torch.cat([candidate_mask, torch.zeros(length_inc, dtype=torch.bool, device='cuda')], dim=0) # 增加 candidate
+                candidate_mask = torch.cat([candidate_mask, torch.zeros(length_inc, dtype=torch.bool, device='cuda')], dim=0)
 
 
             # if stage == "coarse":
-            # all_xyz = self.get_anchor.unsqueeze(dim=1) + self._offset * self.get_scaling[:,:3].unsqueeze(dim=1)  # [N,10,3] 这个有问题
+
             # else:
             
             all_xyz = self.grad_max_points 
@@ -814,15 +809,15 @@ class GaussianModel:
             # size_factor = min(self.update_init_factor // (self.update_hierachy_factor**i), 1)
             size_factor = self.update_init_factor // (self.update_hierachy_factor**i)
             cur_size = self.voxel_size*size_factor
-            grid_coords = torch.round(self.get_anchor / cur_size).int() # anchor 的所处grid
+            grid_coords = torch.round(self.get_anchor / cur_size).int()
 
-            selected_xyz = all_xyz.view([-1, 3])[candidate_mask] # 将 神经高斯作为新的anchor点
+            selected_xyz = all_xyz.view([-1, 3])[candidate_mask]
             # if selected_xyz.shape[0] > all_xyz.shape[0] * 0.05:
             #      selected_xyz = selected_xyz[:int(all_xyz.shape[0] * 0.05)]
 
-            selected_grid_coords = torch.round(selected_xyz / cur_size).int() # neural point 所处grid，
+            selected_grid_coords = torch.round(selected_xyz / cur_size).int()
 
-            selected_grid_coords_unique, inverse_indices = torch.unique(selected_grid_coords, return_inverse=True, dim=0)  # 去除掉坐标重合的神经高斯
+            selected_grid_coords_unique, inverse_indices = torch.unique(selected_grid_coords, return_inverse=True, dim=0)
 
 
             ## split data for reducing peak memory calling
@@ -836,14 +831,14 @@ class GaussianModel:
                     remove_duplicates_list.append(cur_remove_duplicates)
                 
                 remove_duplicates = reduce(torch.logical_or, remove_duplicates_list)
-            else: #  grid_coords).all(-1) 第三维所有元素都为true， any(-1) 第维度只有有一个true， 
+            else:
                 remove_duplicates = (selected_grid_coords_unique.unsqueeze(1) == grid_coords).all(-1).any(-1).view(-1) # [N]
-            # 判断 selected_grid_coords_unique 是否有和 grid_coords 相同的点，  去除掉和原本anchor重合的 神经高斯的坐标
+
             remove_duplicates = ~remove_duplicates
-            candidate_anchor = selected_grid_coords_unique[remove_duplicates] * cur_size  # 不在任意anchor范围内的点，可以用来生成新的anchor
+            candidate_anchor = selected_grid_coords_unique[remove_duplicates] * cur_size
 
             
-            if candidate_anchor.shape[0] > 0:  # 添加anchor，将选出来的神经高斯作为新的anchor，生成
+            if candidate_anchor.shape[0] > 0:
                 new_scaling = torch.ones_like(candidate_anchor).repeat([1,2]).float().cuda()*cur_size # *0.05  [N,6]
                 new_scaling = torch.log(new_scaling)
                 new_rotation = torch.zeros([candidate_anchor.shape[0], 4], device=candidate_anchor.device).float()
@@ -884,7 +879,6 @@ class GaussianModel:
                 self.opacity_max = temp_opacity_max
 
 
-
                 torch.cuda.empty_cache()
                 
                 optimizable_tensors = self.cat_tensors_to_optimizer(d)
@@ -902,15 +896,15 @@ class GaussianModel:
             # # adding anchors
             grads = self.offset_gradient_accum / self.offset_denom # [ N * k , 1 ]
             grads[grads.isnan()] = 0.0
-            # grads_norm = torch.norm(grads, dim=-1) # 只有经常被看到的点才会增长，因为很少看到的区域往往梯度很大，但是并不需要加点
+
             grads_norm =  self.grad_max.squeeze(1)  # defsify
-            offset_mask = ( self.offset_denom > check_interval * success_threshold * 0.5).squeeze(dim=1)  # 每个neural点必须可见次数大于某个阈值
-            offset_mask = torch.logical_and(self.dynamic_mask.repeat(self.n_offsets), offset_mask)   # 动态点才需要
+            offset_mask = ( self.offset_denom > check_interval * success_threshold * 0.5).squeeze(dim=1)
+            offset_mask = torch.logical_and(self.dynamic_mask.repeat(self.n_offsets), offset_mask)
 
             self.anchor_growing(grads_norm, grad_threshold, offset_mask, stage)
 
             # update offset_denom
-            self.offset_denom[offset_mask] = 0  # 之前的清 0，增加新加入的anchor的offset
+            self.offset_denom[offset_mask] = 0
             padding_offset_demon = torch.zeros([self.get_anchor.shape[0]*self.n_offsets - self.offset_denom.shape[0], 1],
                                                     dtype=torch.int32, device=self.offset_denom.device)
             self.offset_denom = torch.cat([self.offset_denom, padding_offset_demon], dim=0)
@@ -927,24 +921,19 @@ class GaussianModel:
             self.grad_max = torch.cat([self.grad_max, padding_grad_max], dim=0)
 
 
-
-
-            padding_dynamic_mask = torch.ones([self.get_anchor.shape[0]- self.dynamic_mask.shape[0]],  # 复制的动态点
+            padding_dynamic_mask = torch.ones([self.get_anchor.shape[0]- self.dynamic_mask.shape[0]],
                                                     dtype=torch.bool, device=self.offset_denom.device)
             self.dynamic_mask = torch.cat([self.dynamic_mask, padding_dynamic_mask], dim=0)
 
 
-        
-
-
         if iteration % (check_interval)== 0:
-            # # prune anchors，   如果某个anchor经常出现在视野，但是平均opacity却小于阈值，那么久直接裁剪
+
             prune_mask = ( self.opacity_accum < min_opacity * self.anchor_demon ).squeeze(dim=1)
-            # prune_mask = ( self.opacity_max < 0.05 ).squeeze(dim=1)  # 所有时刻都小于 min_opacity 才进行裁剪
+
             anchors_mask = (self.anchor_demon > check_interval * success_threshold).squeeze(dim=1) # [N, 1]
             prune_mask = torch.logical_and(prune_mask, anchors_mask) # [N] 
             
-            # update offset_denom  去除掉一些点
+
             offset_denom = self.offset_denom.view([-1, self.n_offsets])[~prune_mask]
             offset_denom = offset_denom.view([-1, 1])
             del self.offset_denom
@@ -990,7 +979,7 @@ class GaussianModel:
 
 
             if prune_mask.shape[0] > 0:
-                self.prune_anchor(prune_mask)  # 把 anchor 也裁剪掉
+                self.prune_anchor(prune_mask)
             
             self.max_radii2D = torch.zeros((self.get_anchor.shape[0]), device="cuda")
 
@@ -1048,22 +1037,19 @@ class GaussianModel:
             xmask = torch.logical_and(xyz[:, 0] > minx, xyz[:, 0] < maxx )
 
             selectedmask = torch.logical_or(xmask, torch.logical_not(xmask))  #torch.logical_and(xmask, ymask)
-            new_xyz.append(xyz[selectedmask]) 
-
+            new_xyz.append(xyz[selectedmask])
 
 
         new_xyz = torch.cat(new_xyz, dim=0)
         tree = KDTree(self._anchor.detach().cpu().numpy())
         _, indices = tree.query(new_xyz.detach().cpu().numpy())
-        new_xyz = new_xyz[self.dynamic_mask[indices]]   # 动态点附近的才添加
+        new_xyz = new_xyz[self.dynamic_mask[indices]]
         _, indices = tree.query(new_xyz.detach().cpu().numpy())
-        
 
 
-
-        grid_coords = torch.round( self.get_anchor / 0.1 ).int() # anchor 的所处grid
-        selected_grid_coords = torch.round( new_xyz / 0.1 ).int() # neural point 所处grid，
-        selected_grid_coords_unique, inverse_indices = torch.unique(selected_grid_coords, return_inverse=True, dim=0)  # 去除掉坐标重合的神经高斯
+        grid_coords = torch.round( self.get_anchor / 0.1 ).int()
+        selected_grid_coords = torch.round( new_xyz / 0.1 ).int()
+        selected_grid_coords_unique, inverse_indices = torch.unique(selected_grid_coords, return_inverse=True, dim=0)
 
         ## split data for reducing peak memory calling
         use_chunk = True
@@ -1076,16 +1062,15 @@ class GaussianModel:
                 remove_duplicates_list.append(cur_remove_duplicates)
             
             remove_duplicates = reduce(torch.logical_or, remove_duplicates_list)
-        else: #  grid_coords).all(-1) 第三维所有元素都为true， any(-1) 第维度只有有一个true， 
+        else:
             remove_duplicates = (selected_grid_coords_unique.unsqueeze(1) == grid_coords).all(-1).any(-1).view(-1) # [N]
-        # 判断 selected_grid_coords_unique 是否有和 grid_coords 相同的点，  去除掉和原本anchor重合的 神经高斯的坐标
 
 
         remove_duplicates = ~remove_duplicates
-        candidate_anchor = selected_grid_coords_unique[remove_duplicates] * 0.1  # 不在任意anchor范围内的点，可以用来生成新的anchor
+        candidate_anchor = selected_grid_coords_unique[remove_duplicates] * 0.1
 
         
-        if candidate_anchor.shape[0] > 0:  # 添加anchor，将选出来的神经高斯作为新的anchor，生成
+        if candidate_anchor.shape[0] > 0:
 
             new_scaling = torch.ones_like(candidate_anchor).repeat([1,2]).float().cuda() * 0.1 # *0.05  [N,6]
             new_scaling = torch.log(new_scaling)
@@ -1138,7 +1123,6 @@ class GaussianModel:
             self._opacity = optimizable_tensors["opacity"]
 
 
-
         # update offset_denom
         padding_offset_demon = torch.zeros([self.get_anchor.shape[0]*self.n_offsets - self.offset_denom.shape[0], 1],
                                             dtype=torch.int32, device=self.offset_denom.device)
@@ -1154,10 +1138,9 @@ class GaussianModel:
         self.grad_max = torch.cat([self.grad_max, padding_grad_max], dim=0)
 
 
-        padding_dynamic_mask = torch.zeros([self.get_anchor.shape[0]- self.dynamic_mask.shape[0]],  # 复制的动态点
+        padding_dynamic_mask = torch.zeros([self.get_anchor.shape[0]- self.dynamic_mask.shape[0]],
                                             dtype=torch.bool, device=self.offset_denom.device)
         self.dynamic_mask = torch.cat([self.dynamic_mask, padding_dynamic_mask], dim=0)
-
 
 
         return new_xyz.shape[0]
@@ -1172,8 +1155,7 @@ class GaussianModel:
             torch.save(self.mlp_color.state_dict(),os.path.join(path, "mlp_color.pth"))
             torch.save(self.mlp_offset.state_dict(),os.path.join(path, "mlp_offset.pth"))
             torch.save(self.time_embedding.state_dict(),os.path.join(path, "time_embedding.pth"))
-            
-           
+
 
             if self.hash:
                 torch.save(self.dynamic_module.state_dict(), os.path.join(path, "FDHash.pth") )
@@ -1181,7 +1163,7 @@ class GaussianModel:
                 torch.save(self.hexplane.state_dict(),os.path.join(path, "hexplane.pth"))
 
         elif mode == 'unite':
-            # 这里的 unite 逻辑暂不常用，如果需要可以仿照上面加 GTnet
+
             if self.use_feat_bank:
                 torch.save({
                     'opacity_mlp': self.mlp_opacity.state_dict(),
@@ -1227,7 +1209,6 @@ class GaussianModel:
         self.mlp_offset.load_state_dict(torch.load(os.path.join(path, 'mlp_offset.pth')))
 
         self.time_embedding.load_state_dict(torch.load(os.path.join(path, 'time_embedding.pth')))
-        
 
 
     def load_mlp_checkpoints(self, path, mode = 'split'):#split or unite
@@ -1252,8 +1233,6 @@ class GaussianModel:
                 self.embedding_appearance.load_state_dict(checkpoint['appearance'])
         else:
             raise NotImplementedError
-
-
 
 
     def _plane_regulation(self):

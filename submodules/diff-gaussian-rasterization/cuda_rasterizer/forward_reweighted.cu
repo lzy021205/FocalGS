@@ -255,7 +255,6 @@ __global__ void preprocessCUDA(int P, int D, int M,
 	// Inverse 2D covariance and opacity neatly pack into one float4
 	// conic_opacity[idx] = { conic.x, conic.y, conic.z, opacities[idx]};
 
-	// modified by lt
 	float det_bias = ((cov.x+0.1001) * (cov.z+0.1001) - cov.y * cov.y);
 	conic_opacity[idx] = { conic.x, conic.y, conic.z, opacities[idx]*sqrt(det/det_bias)};
 	
