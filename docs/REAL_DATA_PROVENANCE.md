@@ -1,170 +1,76 @@
 # Real-Scene Version Provenance
 
-Date: 2026-10-13
+Updated: 2026-11-01
 
-This record separates the data used by the recoverable pre-paper experiments
-from two later benchmark revisions. The original research tree was inspected
-read-only; no data was rewritten and no model was retrained.
+The public real-data release is the unified post-paper strict 24--85 mm
+benchmark. It is not the dataset used for the paper experiments. The historical
+experiment evidence is retained here so that the two protocols are not
+confused.
 
-## Conclusion
+## Public benchmark
 
-The local archive does not contain a real-scene dataset that exactly implements
-the paper statement of 15 viewpoints x 5 focal lengths with 2 held-out
-viewpoints for each of Toy, Plant, and Bear. The strongest recoverable
-pre-paper lineage is listed below. It is suitable for an archival
-"data used by the available experiment" release with explicit caveats, but it
-must not be described as an exact realization of the paper's stated protocol.
+Version: `FocalGS-Real-PostPaper-Strict-24-85-v2`
 
-## Recoverable paper-experiment lineage
+| Scene | Public-source lineage | Train/test | Included focals (mm) | Resolution |
+| --- | --- | ---: | --- | --- |
+| Toy | historical Toy archive, filtered without changing the split | 60 / 15 | 24, 35, 50, 70, 85 | 800 x 533 |
+| Plant | later clean strict split | 58 / 14 | 24, 35, 50, 70, 85 | 800 x 534 |
+| Bear | later clean strict split | 57 / 13 | 24, 35, 50, 70, 85 | 800 x 534 |
 
-### Toy
+No later clean Toy registration was found. To give Toy the same public focal
+set, the release retains the 24, 35, 50, 70, and 85 mm frames from its
+historical split and excludes its 105 mm frames. This produces 12 train and 3
+test images at each focal setting. No image, pose, or train/test assignment was
+changed. The Toy JSON explicitly records this different source lineage.
 
-- Historical data directory: `data/toy_final_resize`
-- Direct final-run script: `run_toy_final.sh`
-- Historical model output: `output/toy_final_resize_run`
-- Checkpoints: iterations 15000 and 30000
-- Run time: 2026-04-29 to 2026-04-30, before the paper PDF
-- Split: 72 train / 18 test, 800 x 533
-- Focals: 24, 35, 50, 70, 85, and 105 mm; 12 train and 3 test images per focal
-- Metadata: `f_stop=16`; focus distances span 0.775--1.335 m
-- Missing: `transforms_train_sharp.json`
+Plant and Bear retain the later clean strict splits. Their focal grids are
+uneven because only successfully registered images are included. Plant has
+58/14 train/test images; Bear has 57/13.
 
-This is the best-confirmed real lineage because a named final command, source
-path, model path, logs, and 30k checkpoint agree. It contains 15 apparent
-capture sweeps x 6 focal settings and holds out 3 sweeps, not the paper's
-15 x 5 / 2-view statement. The archived COLMAP camera text reports 600 x 400
-while the released PNGs are 800 x 533; runtime uses JSON FOV and actual PNG
-dimensions, while the point cloud still comes from that reconstruction.
+Archive: `focalgs_real_postpaper_strict_24_85_v2.tar.gz`
 
-### Plant
+Bytes: `130977079`
 
-- Historical data directory: `data/plant_new`
-- Historical model output: `output/plant_new_experiment`
-- Checkpoints: iterations 15000 and 30000
-- Results file: 30k render/evaluation output exists
-- Run time: 2026-05-11, before the paper PDF
-- Split: 71 train / 5 test, 800 x 533
-- Train focal counts: 24/35/50/70 mm x 14, 85 mm x 11, 87 mm x 1,
-  105 mm x 3
-- Test: one image each at 24, 35, 50, 70, and 85 mm
-- Metadata: `f_stop=16`; focus distances include 1.03--2.99 m and an 11.12 m
-  outlier
-- Missing: `transforms_train_sharp.json`
+SHA256:
+`5d73b83e8409dabc948bde03be3d38d72b2fcea18787c4be8c391d2f89ff96a1`
 
-Training configuration, logs, checkpoint timestamps, rendered output, and
-results all point to `plant_new`. The paper's displayed Plant comparison was
-extracted from the paper PDF, so it does not provide an independent filename or
-checkpoint-level identity check. This version is therefore the strongest
-candidate, not cryptographic proof of the exact figure source.
+The archive has 217 PNGs, six split JSON files, nine sparse COLMAP binaries,
+and its internal manifest and checksum list. It has no symbolic links, raw CR3
+files, embedded image metadata, databases, pickle files, caches, or unrelated
+intermediates. All three scenes were extracted and loaded with the frozen
+FocalGS reader.
 
-The later capture archive contains 90 CR3 originals arranged as 15 repeated
-six-focal sequences. The paper candidate successfully registers and references
-76 of those images; its 71/5 split reflects registration coverage rather than a
-complete rectangular focal grid.
+## Historical paper-experiment evidence
 
-### Bear
+No archived real-scene version exactly implements the paper statement of 15
+viewpoints at five focal lengths with two held-out viewpoints for each scene.
+The strongest recoverable pre-paper lineages are:
 
-- Historical data directory: `data/bear_newest`
-- Historical model output: `output/bear_newest_experiment`
-- Checkpoints: iterations 15000 and 30000
-- Paired no-defocus experiment and results also exist
-- Run time: 2026-05-11, before the paper PDF
-- Split: 64 train / 4 test, 800 x 533
-- Train focal counts: 24/35/50 mm x 15, 70 mm x 12, 85 mm x 5,
-  105 mm x 2
-- Test: one image each at 24, 35, 50, and 70 mm
-- Metadata: `f_stop=4`
-- Missing: `transforms_train_sharp.json`
+| Scene | Historical source | Registered/used | Actual split | Focal evidence |
+| --- | --- | ---: | ---: | --- |
+| Toy | `toy_final_resize` | 90 | 72 / 18 | six settings: 24, 35, 50, 70, 85, 105 mm |
+| Plant | `plant_new` | 76 | 71 / 5 | uneven registered subset including 24--105 mm and one 87 mm entry |
+| Bear | `bear_newest` | 68 | 64 / 4 | uneven registered subset including 24--105 mm |
 
-This lineage is preferable to `bear_800_standard`: the latter patches failed
-long-focal test registrations by borrowing a 24 mm camera and subsequently
-labels some physical 85/105 mm images near 24.45 mm. It is not a safe paper
-release source.
-
-The later capture archive contains 96 CR3 originals arranged as 16 repeated
-six-focal sequences. The paper candidate successfully registers and references
-68 images, again producing a non-rectangular focal grid.
-
-## Later clean datasets
-
-The clean baseline was created on and after 2026-08-20 and is separate from the
-pre-paper experiments.
-
-| Scene | Train/test | Focal range | Notes |
-| --- | ---: | --- | --- |
-| Plant clean | 63 / 16 | 24--105 mm | 79 referenced registered images; per-frame OPENCV calibration and EXIF-derived fields retained |
-| Bear clean | 58 / 16 | 24--105 mm | 74 referenced registered images; 105 mm registration coverage is weak |
-| Toy clean | unavailable | -- | No Toy dataset exists in the clean `focalgs_ready` tree |
-
-The clean Plant/Bear directories use symbolic-link image roots in the research
-tree and cannot be copied as-is into a portable release. Their JSON includes
-more metadata than the frozen runtime consumes.
-
-## Strict 24--85 mm validation splits
-
-These were derived after the clean baseline to avoid the least reliable
-long-focal registrations and unstable viewpoint groups.
-
-| Scene | Train/test | Focal range | Status |
-| --- | ---: | --- | --- |
-| Plant strict | 58 / 14 | 24, 35, 50, 70, 85 mm | post-paper validation benchmark |
-| Bear strict | 57 / 13 | 24, 35, 50, 70, 85 mm | post-paper validation benchmark |
-| Toy strict | unavailable | -- | no clean Toy source |
-
-These splits are the most defensible current Plant/Bear validation data, but
-they are not the data used by the April/May paper experiments and do not repair
-the paper/data mismatch.
+Scripts, logs, configuration snapshots, results, and 30,000-iteration
+checkpoints associate those versions with the recoverable experiments. The
+public strict benchmark must not be described as a replacement or exact
+reconstruction of this experiment archive. The historical archive is not part
+of the current public download.
 
 ## Camera model and distortion
 
-Plant and Bear use per-image COLMAP `OPENCV` cameras. The paper-candidate JSON
-preserves `fl_x`, `fl_y`, `cx`, and `cy`; the later clean JSON additionally
-preserves `k1`, `k2`, `p1`, `p2`, image size, camera IDs, and EXIF-derived
-fields. The frozen FocalGS runtime instead builds a centered pinhole projection
-from `camera_angle_x` and actual image dimensions. It does not apply principal
-point offsets or OPENCV distortion. Any real-scene release and result table must
-state this limitation.
+Plant and Bear use per-image COLMAP `OPENCV` cameras. Their strict JSON preserves
+`fl_x`, `fl_y`, `cx`, `cy`, `k1`, `k2`, `p1`, and `p2`. Toy preserves the
+fields available in its historical JSON and sparse model. The frozen FocalGS
+runtime builds a centered pinhole projection from `camera_angle_x` and actual
+image dimensions. It does not apply principal-point offsets or OPENCV
+distortion coefficients.
 
-## Privacy and metadata
+## Privacy and release boundary
 
-Sample PNGs from all three paper-candidate datasets contain no embedded EXIF or
-PNG metadata. The inspected Plant and Bear CR3 originals contain camera body,
-lens serial numbers, and capture timestamps; no GPS fields were returned for
-the inspected samples. Owner, artist, and copyright fields were empty. Raw CR3
-files must not be published without a full metadata scrub and a capture-rights
-review. Later clean JSON exposes source CR3 filenames, exposure, ISO, lens model,
-and focus metadata; those fields require a deliberate public-metadata decision.
-
-The project release authority has approved publication of the sanitized PNGs
-and camera data in the two frozen real-data archives, including the depicted
-objects and capture environments. This approval does not extend to raw CR3
-files, which remain excluded together with serial numbers and capture metadata.
-
-## Portable candidates
-
-Two separate portable archives were prepared without modifying the research
-data:
-
-| Archive | Bytes | SHA256 | Validation |
-| --- | ---: | --- | --- |
-| `focalgs_real_paper_experiment_candidate.tar.gz` | 139,512,358 | `f739ce473f1d167c715daa1b64232f0905f089f5936028d4b21ac3abca7933fa` | 264 members; six split JSONs; Toy/Plant/Bear load with the exact reader |
-| `focalgs_real_postpaper_strict_24_85.tar.gz` | 84,299,583 | `1d12603d2616625373379ea7755bf446a48f3f3a6c72b602b0fe66cd15a53b88` | 163 members; four split JSONs; Plant/Bear load with the exact reader |
-
-The candidates include JSON-referenced PNGs, train/test JSONs, and the COLMAP
-binary sparse triplet. They contain no symbolic links, raw CR3 files, embedded
-image metadata, databases, pickle files, caches, or unrelated intermediates.
-The strict JSON was sanitized to remove original CR3 names, serial-related raw
-metadata, timestamps, exposure/ISO strings, lens strings, and EXIF focus bounds.
-
-## Recommended release treatment
-
-1. Preserve `toy_final_resize`, `plant_new`, and `bear_newest` as an explicitly
-   labeled archival paper-experiment candidate if reproducing available
-   checkpoints is the priority.
-2. Publish the strict Plant/Bear 24--85 mm data only as a separate post-paper
-   validation benchmark.
-3. Do not substitute clean or strict data for the paper candidate in filenames,
-   tables, or download labels.
-4. Keep `bear_800_standard` and raw CR3 files out of the public package.
-5. Mark the paper's 15 x 5 protocol as unresolved unless an additional original
-   dataset archive is located.
+Published PNGs have no embedded EXIF or PNG metadata. Raw Plant/Bear captures
+contain capture timestamps and camera/lens serial information, so CR3 files are
+excluded. Public JSON removes raw filenames, timestamps, exposure/ISO strings,
+lens strings, serial-related metadata, and EXIF focus bounds. The release
+contains sanitized images and camera data only.

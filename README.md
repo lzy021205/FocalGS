@@ -289,15 +289,14 @@ The public canonical synthetic configs cover:
 
 ## Real-World Data
 
-The original Toy/Plant/Bear experiment lineage does not exactly realize the
-paper's stated 15-viewpoint x 5-focal protocol. Later clean Plant/Bear datasets
-and strict 24--85 mm splits are separate post-paper benchmarks; no equivalent
-clean Toy dataset was found. `docs/REAL_DATA_PROVENANCE.md` records the versions,
-split counts, camera limitations, privacy review, and recommended release labels.
-`REAL_DATASET.md` gives the portable archive layout, checksums, and verification
-commands. The two real-data downloads are versioned separately as
-**Experimental Archive** and **Post-paper Clean Benchmark** under
-`release/real/`.
+The public real-data download is the unified post-paper strict 24--85 mm
+benchmark for Toy, Plant, and Bear. Toy is derived from the historical Toy
+archive by removing only its 105 mm frames; Plant and Bear use the later clean
+strict splits. It is not the original paper-experiment dataset.
+`docs/REAL_DATA_PROVENANCE.md` records the versions, split counts, camera
+limitations, and privacy review. `REAL_DATASET.md` gives the portable archive
+layout, checksum, and verification commands. The release record is under
+`release/real/postpaper_strict_24_85/`.
 
 ## Reproducibility Notes
 

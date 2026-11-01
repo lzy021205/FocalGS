@@ -66,10 +66,7 @@ def main() -> None:
                 raise RuntimeError(f"Stale metadata marker in {path}: {marker}")
 
     master_sums = read_sums(ROOT / "release/SHA256SUMS")
-    companion_dirs = (
-        ROOT / "release/real/experimental_archive",
-        ROOT / "release/real/postpaper_clean_benchmark",
-    )
+    companion_dirs = (ROOT / "release/real/postpaper_strict_24_85",)
     for directory in companion_dirs:
         stats = json.loads((directory / "DATASET_STATS.json").read_text(encoding="utf-8"))
         version = (directory / "VERSION").read_text(encoding="utf-8").strip()
@@ -94,24 +91,13 @@ def main() -> None:
             raise FileNotFoundError(f"Broken project-page reference: {reference}")
 
     subprocess.run(
-        [
-            "git",
-            "merge-base",
-            "--is-ancestor",
-            "github/main",
-            "release/github-integration-20261013",
-        ],
-        cwd=ROOT,
-        check=True,
-    )
-    subprocess.run(
-        ["git", "diff", "--quiet", "main", "release/github-integration-20261013"],
+        ["git", "merge-base", "--is-ancestor", "origin/main", "HEAD"],
         cwd=ROOT,
         check=True,
     )
     print(
         "OK release metadata, companion checksums, project-page links, "
-        "Git ancestry, and integration-tree equality"
+        "and Git ancestry"
     )
 
 

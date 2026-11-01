@@ -68,10 +68,9 @@ Run these steps only after written patent/IP and rights approval:
 1. **Code repository**: fetch GitHub `main`, repeat the ancestry and diff
    checks, then push `release/github-integration-20261013` to `main` as a normal
    fast-forward. Tag the reviewed commit only after the push is verified.
-2. **Data hosting**: upload the authorized synthetic archives, Experimental
-   Archive, and Post-paper Clean Benchmark as separately labeled records. Do
-   not publish a record whose own rights gate remains open. Verify downloaded
-   bytes against `release/SHA256SUMS` and run the archive verifier.
+2. **Data hosting**: upload the seven authorized synthetic archives and the
+   unified Toy/Plant/Bear Post-paper Strict 24--85 mm benchmark. Verify
+   downloaded bytes against `release/SHA256SUMS` and run the archive verifier.
 3. **Project page**: insert the final code and approved data URLs, check every
    local media reference, then deploy the already reviewed page. Do not add new
    result sections during this metadata release.

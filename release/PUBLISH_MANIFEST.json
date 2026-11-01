@@ -1,40 +1,35 @@
 {
-  "format": "FocalGS publication manifest v1",
-  "prepared": "2026-10-13",
-  "publication_status": "offline; public release prohibited pending approval",
+  "format": "FocalGS publication manifest v2",
+  "prepared": "2026-11-01",
+  "publication_status": "code and dataset publicly released",
   "components": [
     {
       "id": "code",
-      "artifact": "release/github-integration-20261013",
-      "classification": "technically ready; patent and license approval required"
+      "artifact": "https://github.com/lzy021205/FocalGS",
+      "classification": "public"
     },
     {
       "id": "synthetic-data",
       "artifacts": 7,
       "bytes": 2615388160,
-      "classification": "technically ready; per-scene redistribution authorization required"
-    },
-    {
-      "id": "real-paper-experiment",
-      "label": "Experimental Archive",
-      "version": "FocalGS-Real-Experimental-Archive-v1",
-      "artifact": "focalgs_real_paper_experiment_candidate.tar.gz",
-      "companion_directory": "release/real/experimental_archive",
-      "images": 234,
-      "bytes": 139512358,
-      "sha256": "f739ce473f1d167c715daa1b64232f0905f089f5936028d4b21ac3abca7933fa",
-      "classification": "technically ready; protocol disclosure, capture rights, privacy, and patent approval required"
+      "classification": "public; upstream asset provenance remains documented per scene"
     },
     {
       "id": "real-postpaper-strict-24-85",
-      "label": "Post-paper Clean Benchmark",
-      "version": "FocalGS-Real-PostPaper-Clean-24-85-v1",
-      "artifact": "focalgs_real_postpaper_strict_24_85.tar.gz",
-      "companion_directory": "release/real/postpaper_clean_benchmark",
-      "images": 142,
-      "bytes": 84299583,
-      "sha256": "1d12603d2616625373379ea7755bf446a48f3f3a6c72b602b0fe66cd15a53b88",
-      "classification": "technically ready; optional post-paper benchmark with independent approval"
+      "label": "Post-paper Strict 24--85 mm Benchmark",
+      "version": "FocalGS-Real-PostPaper-Strict-24-85-v2",
+      "artifact": "focalgs_real_postpaper_strict_24_85_v2.tar.gz",
+      "companion_directory": "release/real/postpaper_strict_24_85",
+      "scenes": [
+        "toy",
+        "plant",
+        "bear"
+      ],
+      "images": 217,
+      "bytes": 130977079,
+      "sha256": "5d73b83e8409dabc948bde03be3d38d72b2fcea18787c4be8c391d2f89ff96a1",
+      "classification": "public post-paper benchmark; not the original paper-experiment dataset",
+      "toy_provenance": "strict subset of historical Toy archive; Plant/Bear use later clean strict splits"
     }
   ]
 }

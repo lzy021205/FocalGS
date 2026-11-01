@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Build portable real-scene release candidates from the read-only archive.
+"""Build the unified post-paper strict 24--85 mm real-data release.
 
-The script intentionally separates the recoverable paper-experiment datasets
-from the later strict 24--85 mm benchmark. It copies only JSON-referenced
-images and the COLMAP sparse binary triplet. It never edits the source tree.
+Toy is filtered from the historical Toy split; Plant and Bear come from the
+later clean strict splits. The script copies only JSON-referenced images and
+the COLMAP sparse binary triplet. It never edits the research source tree.
 """
 
 from __future__ import annotations
@@ -12,12 +12,14 @@ import argparse
 import hashlib
 import json
 import shutil
-import tarfile
+import subprocess
 from collections import Counter
 from pathlib import Path
 
 
-DEFAULT_OUTPUT = Path("release_staging/real_candidate_20261013")
+DEFAULT_OUTPUT = Path("release_staging/real_postpaper_strict_v2")
+VERSION = "FocalGS-Real-PostPaper-Strict-24-85-v2"
+ALLOWED_FOCALS = {24.0, 35.0, 50.0, 70.0, 85.0}
 
 SPARSE_FILES = ("cameras.bin", "images.bin", "points3D.bin")
 PUBLIC_FRAME_FIELDS = {
@@ -91,9 +93,11 @@ def load_splits(source: Path) -> dict[str, dict]:
     return result
 
 
-def sanitize_strict(data: dict, scene: str) -> dict:
+def sanitize_strict(data: dict, scene: str, source_note: str) -> dict:
     public = {key: value for key, value in data.items() if key in PUBLIC_TOP_FIELDS}
     public["release_dataset_label"] = "post-paper strict 24--85 mm benchmark"
+    public["release_version"] = VERSION
+    public["release_source_note"] = source_note
     public["release_metadata_note"] = (
         "Raw filenames, camera serial metadata, capture timestamps, exposure, ISO, "
         "lens-model strings, and EXIF focus bounds were removed for release."
@@ -102,11 +106,12 @@ def sanitize_strict(data: dict, scene: str) -> dict:
     public["frames"] = [
         {key: value for key, value in frame.items() if key in PUBLIC_FRAME_FIELDS}
         for frame in data.get("frames", [])
+        if float(frame["focal_length_mm"]) in ALLOWED_FOCALS
     ]
     return public
 
 
-def copy_scene(source: Path, destination: Path, *, sanitize: bool, scene: str) -> dict:
+def copy_scene(source: Path, destination: Path, *, scene: str, source_note: str) -> dict:
     splits = load_splits(source)
     destination.mkdir(parents=True)
     refs: dict[str, Path] = {}
@@ -114,11 +119,14 @@ def copy_scene(source: Path, destination: Path, *, sanitize: bool, scene: str) -
     focal_counts = {}
 
     for json_name, data in splits.items():
-        out_data = sanitize_strict(data, scene) if sanitize else data
+        split_name = json_name.removeprefix("transforms_").removesuffix(".json")
+        out_data = sanitize_strict(data, scene, source_note)
         frames = out_data.get("frames", [])
-        split_counts[json_name] = len(frames)
-        focal_counts[json_name] = dict(
-            sorted(Counter(str(frame["focal_length_mm"]) for frame in frames).items())
+        split_counts[split_name] = len(frames)
+        focal_counts[split_name] = dict(
+            sorted(
+                Counter(str(int(float(frame["focal_length_mm"]))) for frame in frames).items()
+            )
         )
         for frame in frames:
             source_image = image_path(source, frame["file_path"])
@@ -144,10 +152,9 @@ def copy_scene(source: Path, destination: Path, *, sanitize: bool, scene: str) -
         shutil.copy2(source_file, sparse_out / name, follow_symlinks=True)
 
     return {
-        "source_archive_name": source.name,
-        "split_counts": split_counts,
+        "splits": split_counts,
         "focal_counts": focal_counts,
-        "unique_referenced_images": len(refs),
+        "unique_images": len(refs),
     }
 
 
@@ -164,12 +171,14 @@ def file_manifest(root: Path) -> list[dict]:
     return records
 
 
-def write_manifest(root: Path) -> None:
+def write_manifest(root: Path, summary: dict) -> None:
     records = file_manifest(root)
     (root / "MANIFEST.json").write_text(
         json.dumps(
             {
                 "format": "FocalGS real-data portable candidate",
+                "version": VERSION,
+                "scenes": summary,
                 "files": records,
                 "file_count": len(records),
                 "total_bytes": sum(item["bytes"] for item in records),
@@ -184,9 +193,33 @@ def write_manifest(root: Path) -> None:
             stream.write(f"{item['sha256']}  {item['path']}\n")
 
 
-def make_archive(source: Path, archive: Path, arcname: str) -> None:
-    with tarfile.open(archive, "w:gz", format=tarfile.PAX_FORMAT) as tar:
-        tar.add(source, arcname=arcname, recursive=True)
+def make_archive(source: Path, archive: Path) -> None:
+    tar_command = [
+        "tar",
+        "--sort=name",
+        "--mtime=UTC 2026-11-01",
+        "--owner=0",
+        "--group=0",
+        "--numeric-owner",
+        "-C",
+        str(source.parent),
+        "-cf",
+        "-",
+        source.name,
+    ]
+    with archive.open("wb") as output:
+        tar_process = subprocess.Popen(tar_command, stdout=subprocess.PIPE)
+        assert tar_process.stdout is not None
+        gzip_process = subprocess.Popen(
+            ["gzip", "-n"], stdin=tar_process.stdout, stdout=output
+        )
+        tar_process.stdout.close()
+        gzip_status = gzip_process.wait()
+        tar_status = tar_process.wait()
+    if tar_status or gzip_status:
+        raise subprocess.CalledProcessError(
+            tar_status or gzip_status, tar_command if tar_status else ["gzip", "-n"]
+        )
 
 
 def verify_tree(root: Path) -> None:
@@ -219,56 +252,55 @@ def main() -> None:
     if output.exists():
         raise FileExistsError(f"Refusing to overwrite existing candidate: {output}")
 
-    paper_root = output / "paper_experiment"
-    strict_root = output / "postpaper_strict_24_85"
-    archive_root = output / "archives"
-    archive_root.mkdir(parents=True)
-    summary = {"paper_experiment": {}, "postpaper_strict_24_85": {}}
-
-    paper_sources = {
-        "toy": research_root / "data/toy_final_resize",
-        "plant": research_root / "data/plant_new",
-        "bear": research_root / "data/bear_newest",
-    }
+    release_root = output / "focalgs_real_postpaper_strict_24_85_v2"
+    summary = {}
     strict_base = (
         research_root
         / "data/real_clean_baseline_20260820/focalgs_ready/real_valid_split/datasets"
     )
-    strict_sources = {
+    sources = {
+        "toy": research_root / "data/toy_final_resize",
         "plant": strict_base / "plant_strict_valid_24_85",
         "bear": strict_base / "bear_strict_valid_24_85",
     }
+    source_notes = {
+        "toy": (
+            "Derived from the historical Toy experimental archive by retaining "
+            "the existing split and the 24, 35, 50, 70, and 85 mm frames; this "
+            "is not a later clean Toy capture."
+        ),
+        "plant": (
+            "Copied from the later clean Plant strict validation split prepared "
+            "after the paper experiments."
+        ),
+        "bear": (
+            "Copied from the later clean Bear strict validation split prepared "
+            "after the paper experiments."
+        ),
+    }
 
-    for scene, source in paper_sources.items():
-        summary["paper_experiment"][scene] = copy_scene(
-            source, paper_root / scene, sanitize=False, scene=scene
-        )
-    for scene, source in strict_sources.items():
-        summary["postpaper_strict_24_85"][scene] = copy_scene(
-            source, strict_root / scene, sanitize=True, scene=scene
+    for scene, source in sources.items():
+        summary[scene] = copy_scene(
+            source,
+            release_root / scene,
+            scene=scene,
+            source_note=source_notes[scene],
         )
 
     (output / "BUILD_SUMMARY.json").write_text(
         json.dumps(summary, indent=2) + "\n", encoding="utf-8"
     )
-    write_manifest(paper_root)
-    write_manifest(strict_root)
-    verify_tree(paper_root)
-    verify_tree(strict_root)
+    write_manifest(release_root, summary)
+    verify_tree(release_root)
 
-    archives = [
-        (paper_root, archive_root / "focalgs_real_paper_experiment_candidate.tar.gz", "focalgs_real_paper_experiment"),
-        (strict_root, archive_root / "focalgs_real_postpaper_strict_24_85.tar.gz", "focalgs_real_postpaper_strict_24_85"),
-    ]
-    for source, archive, arcname in archives:
-        make_archive(source, archive, arcname)
-    with (archive_root / "SHA256SUMS").open("w", encoding="utf-8") as stream:
-        for _, archive, _ in archives:
-            stream.write(f"{sha256(archive)}  {archive.name}\n")
+    archive = output / "focalgs_real_postpaper_strict_24_85_v2.tar.gz"
+    make_archive(release_root, archive)
+    (output / "SHA256SUMS").write_text(
+        f"{sha256(archive)}  {archive.name}\n", encoding="utf-8"
+    )
 
     print(json.dumps(summary, indent=2))
-    for _, archive, _ in archives:
-        print(f"{sha256(archive)}  {archive}  {archive.stat().st_size} bytes")
+    print(f"{sha256(archive)}  {archive}  {archive.stat().st_size} bytes")
 
 
 if __name__ == "__main__":

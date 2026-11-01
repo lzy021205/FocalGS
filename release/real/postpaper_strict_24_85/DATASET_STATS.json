@@ -1,0 +1,36 @@
+{
+  "version": "FocalGS-Real-PostPaper-Strict-24-85-v2",
+  "archive": "focalgs_real_postpaper_strict_24_85_v2.tar.gz",
+  "bytes": 130977079,
+  "sha256": "5d73b83e8409dabc948bde03be3d38d72b2fcea18787c4be8c391d2f89ff96a1",
+  "total_images": 217,
+  "scenes": {
+    "toy": {
+      "source": "historical Toy archive filtered to the strict focal set",
+      "strict_included": 75,
+      "train": 60,
+      "test": 15,
+      "resolution": [800, 533],
+      "train_focal_counts_mm": {"24": 12, "35": 12, "50": 12, "70": 12, "85": 12},
+      "test_focal_counts_mm": {"24": 3, "35": 3, "50": 3, "70": 3, "85": 3}
+    },
+    "plant": {
+      "source": "later clean strict split",
+      "strict_included": 72,
+      "train": 58,
+      "test": 14,
+      "resolution": [800, 534],
+      "train_focal_counts_mm": {"24": 12, "35": 12, "50": 12, "70": 12, "85": 10},
+      "test_focal_counts_mm": {"24": 3, "35": 3, "50": 3, "70": 3, "85": 2}
+    },
+    "bear": {
+      "source": "later clean strict split",
+      "strict_included": 70,
+      "train": 57,
+      "test": 13,
+      "resolution": [800, 534],
+      "train_focal_counts_mm": {"24": 13, "35": 13, "50": 13, "70": 10, "85": 8},
+      "test_focal_counts_mm": {"24": 3, "35": 3, "50": 3, "70": 3, "85": 1}
+    }
+  }
+}

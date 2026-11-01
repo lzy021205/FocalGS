@@ -102,11 +102,12 @@ ground truth. Add `--render_blur` only when physical defocus output is wanted.
 
 ## Real scenes
 
-Toy, Plant, and Bear are distributed separately under
-`real/experimental_archive/`. The later Plant/Bear strict 24--85 mm benchmark is
-under `real/postpaper_clean_benchmark/` and is not the paper-experiment dataset.
-The version evidence and camera limitations are recorded in
-`docs/REAL_DATA_PROVENANCE.md`.
+Toy, Plant, and Bear are distributed together under
+`real/postpaper_strict_24_85/` as the post-paper strict 24--85 mm benchmark.
+Toy is a five-focal subset of the historical Toy archive; Plant and Bear use
+the later clean strict splits. This benchmark is not the original
+paper-experiment dataset. Actual counts, provenance, and camera limitations are
+recorded in `REAL_DATASET.md` and `docs/REAL_DATA_PROVENANCE.md`.
 
 ## Redistribution status
 
